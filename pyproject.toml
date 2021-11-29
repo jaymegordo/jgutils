@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Generic utils to be shared between multiple projects"
 authors = ["Jayme Gordon <jaymegordo@gmail.com>"]
 license = "MIT"
-packages = [{include = "jgutils"}]
+# packages = [{include = "jgutils"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"
