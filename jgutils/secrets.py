@@ -42,6 +42,7 @@ class SecretsManager(object):
         raise RuntimeError(f'p_secret or p_unencrypt not set! p_secret: {p_sec}, p_unencrypt: {p_unencrypt}')
 
     p_secret = Path(p_sec)
+    p_unencrypt = Path(p_unencrypt)
 
     # find key file
     lst_keys = [p for p in p_secret.iterdir() if p.suffix == '.key']
