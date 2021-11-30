@@ -147,8 +147,14 @@ def getlog(name: str) -> logging.Logger:
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(fmt_file)
 
+    else:
+        fh = None
+
     if not log.handlers:
         log.addHandler(sh)
+
+        if not AZURE_WEB:
+            log.addHandler(fh)
 
     return log
 
