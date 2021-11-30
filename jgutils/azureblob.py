@@ -12,6 +12,7 @@ from typing import *
 from azure.storage.blob import (BlobClient, BlobServiceClient,  # noqa
                                 ContainerClient)
 
+from jgutils import fileops as fl
 from jgutils import functions as f
 from jgutils.logger import getlog
 from jgutils.secrets import SecretsManager
@@ -39,7 +40,7 @@ class BlobStorage():
         _p_local = None
         if isinstance(container, Path):
             _p_local = container
-            f.check_path(_p_local)
+            fl.check_path(_p_local)
             container = container.name
 
         self._p_local = _p_local
@@ -180,6 +181,8 @@ class BlobStorage():
         container = self.get_container(container)
         blob = container.get_blob_client(p.name)
 
+        fl.check_path(p)
+
         with open(p, 'wb') as file:
             file.write(blob.download_blob().readall())
 
@@ -210,7 +213,7 @@ class BlobStorage():
 
         if _log:
             log.info(
-                f'Uploaded "{blob.blob_name}"" to container "{container.container_name}"')
+                f'Uploaded "{blob.blob_name}" to container "{container.container_name}"')
 
     def show_containers(self) -> None:
         """Show list of container names"""

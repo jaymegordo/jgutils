@@ -1,59 +1,6 @@
 import json
-import pickle
 import re
-from pathlib import Path
 from typing import *
-
-
-def check_path(p: Path) -> Path:
-    """Create path if doesn't exist"""
-    if isinstance(p, str):
-        p = Path(p)
-
-    p_create = p if p.is_dir() or not '.' in p.name else p.parent
-
-    # if file, create parent dir, else create dir
-    if not p_create.exists():
-        p_create.mkdir(parents=True)
-
-    return p
-
-
-def clean_dir(p: Path) -> None:
-    """Clean all saved models in models dir"""
-    if p.is_dir():
-        for _p in p.glob('*'):
-            _p.unlink()
-
-
-def save_pickle(obj: object, p: Path, name: str) -> Path:
-    """Save object to pickle file
-
-    Parameters
-    ----------
-    obj : object
-        object to save as pickle
-    p : Path
-        base dir to save in
-    name : str
-        file name (excluding .pkl)
-
-    Returns
-    -------
-    Path
-        path of saved file
-    """
-    p = p / f'{name}.pkl'
-    with open(check_path(p), 'wb') as file:
-        pickle.dump(obj, file)
-
-    return p
-
-
-def load_pickle(p: Path) -> object:
-    """Load pickle from file"""
-    with open(p, 'rb') as file:
-        return pickle.load(file)
 
 
 def as_list(items: Any) -> list:
