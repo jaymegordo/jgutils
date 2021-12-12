@@ -21,11 +21,6 @@ except ModuleNotFoundError:
     # running on azure
     Formatter = logging.Formatter
 
-# set log formats
-fmt_file = logging.Formatter(
-    '%(asctime)s  %(levelname)-7s %(lineno)-4d %(name)-20s %(message)s', datefmt='%m-%d %H:%M:%S')
-
-
 # simple colors
 _palette = dict(
     black=30,
@@ -92,8 +87,20 @@ class ColoredFormatter(Formatter):
         message = super().formatMessage(record)
         return highlight_filepath(message)
 
+    def format(self, record: logging.LogRecord) -> str:
+        """Disable caching of exception text
+        - Lets StreamHandler and FileHandler have different traceback formats
 
-_fmt_stream = '%(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
+        https://stackoverflow.com/questions/5875225/
+        weird-logger-only-uses-the-formatter-of-the-first-handler-for-exceptions
+        """
+        backup = record.exc_text
+        record.exc_text = None
+        s = logging.Formatter.format(self, record)
+        record.exc_text = backup
+
+        return s
+
 
 if not AZURE_WEB:
     # local app, use colored formatter
@@ -102,9 +109,25 @@ else:
     StreamFormatter = logging.Formatter
 
 # Console/stream handler
+_fmt_stream = '%(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
 stream_formatter = StreamFormatter(_fmt_stream)
 sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(stream_formatter)
+
+# set file logger if path set and not azure
+log_path = os.getenv('file_log_path', None)
+fh = None
+
+if not log_path is None and not AZURE_WEB:
+    _fmt_file = '%(asctime)s  %(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
+    fmt_file = logging.Formatter(_fmt_file, datefmt='%m-%d %H:%M:%S')
+
+    fh = RotatingFileHandler(log_path, maxBytes=100000, backupCount=0)
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt_file)
+
+# NOTE could do logging.basicConfig(handlers=[sh, fh]) to catch everything
+# logging.basicConfig(handlers=[sh, fh], level=logging.DEBUG)
 
 
 def getlog(name: str) -> logging.Logger:
@@ -140,20 +163,10 @@ def getlog(name: str) -> logging.Logger:
         # this prevents duplicate outputs (eg for pytest)
         log.propagate = False
 
-    # set file logger if path set
-    log_path = os.getenv('file_log_path', None)
-    if not log_path is None:
-        fh = RotatingFileHandler(log_path, maxBytes=100000, backupCount=0)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(fmt_file)
-
-    else:
-        fh = None
-
     if not log.handlers:
         log.addHandler(sh)
 
-        if not AZURE_WEB:
+        if not fh is None:
             log.addHandler(fh)
 
     return log
