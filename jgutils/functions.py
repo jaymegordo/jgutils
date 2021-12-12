@@ -1,9 +1,12 @@
 import json
 import re
+import sys
 from typing import *
 
+SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
-def as_list(items: Any) -> list:
+
+def as_list(items: Any) -> List[Any]:
     """Check item(s) is list, make list if not"""
     if not isinstance(items, list):
         items = [items]
@@ -27,15 +30,29 @@ def safe_append(lst: list, item: Union[list, Any]) -> None:
         lst.append(item)
 
 
-def set_self(m: dict, exclude: Union[tuple, str] = ()):
+def set_self(exclude: Optional[Union[tuple, str]] = None, include: Optional[Union[dict, None]] = None):
     """Convenience func to assign an object's func's local vars to self"""
-    if not isinstance(exclude, tuple):
-        exclude = (exclude, )
-    exclude += ('__class__', 'self')  # always exclude class/self
-    obj = m.get('self', None)  # self must always be in vars dict
+    fr = sys._getframe(1)
+    # code = fr.f_code
+    m = fr.f_locals
+    obj = m.pop('self')
 
-    if obj is None:
-        return
+    # args = code.co_varnames[:code.co_argcount + code.co_kwonlyargcount]
+    # obj = fr.f_locals[args[0]]  # self
+
+    # ns = getattr(obj, '__slots__', args[1:])  # type: ignore
+    # m = {n: fr.f_locals[n] for n in ns}  # vars() dict, excluding self
+
+    if include:
+        m |= include
+
+    if not isinstance(exclude, tuple):
+        if exclude is None:
+            exclude = ()
+
+        exclude = (exclude,)
+
+    exclude += SELF_EXCLUDE  # always exclude class
 
     for k, v in m.items():
         if not k in exclude:
@@ -47,7 +64,7 @@ def inverse(m: dict) -> dict:
     return {v: k for k, v in m.items()}
 
 
-def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool = False) -> str:
+def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool = False) -> Optional[str]:
     """Print pretty dict converted to newlines
     Paramaters
     ----
