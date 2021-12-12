@@ -36,13 +36,14 @@ class SecretsManager(object):
     >>> SecretsManager().encrypt_all_secrets()
     """
     # need to set path to secrets dir, could be different if frozen app
-    p_sec = os.getenv('p_secret', None)
-    p_unencrypt = os.getenv('p_unencrypt', None)
-    if p_sec is None or p_unencrypt is None:
-        raise RuntimeError(f'p_secret or p_unencrypt not set! p_secret: {p_sec}, p_unencrypt: {p_unencrypt}')
+    _p_sec = os.getenv('p_secret', None)
+    _p_unencrypt = os.getenv('p_unencrypt', None)
+    if _p_sec is None or _p_unencrypt is None:
+        raise RuntimeError(
+            f'p_secret or p_unencrypt not set! p_secret: {_p_sec}, p_unencrypt: {_p_unencrypt}')
 
-    p_secret = Path(p_sec)
-    p_unencrypt = Path(p_unencrypt)
+    p_secret = Path(_p_sec)
+    p_unencrypt = Path(_p_unencrypt)
 
     # find key file
     lst_keys = [p for p in p_secret.iterdir() if p.suffix == '.key']

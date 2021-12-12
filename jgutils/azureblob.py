@@ -190,7 +190,7 @@ class BlobStorage():
             log.info(
                 f'Downloaded "{blob.blob_name}" from container "{container.container_name}"')
 
-        return blob
+        return p
 
     def upload_file(self, p: Path, container: Union[str, ContainerClient] = None, _log: bool = True) -> None:
         """Save local file to container
@@ -233,8 +233,8 @@ class BlobStorage():
         List[str]
             list of files in container
         """
-        container = self.get_container(container)
-        return [b.name for b in container.list_blobs()]
+        _container = self.get_container(container)
+        return [b.name for b in _container.list_blobs()]
 
     def show_files(self, container: str = None) -> None:
         """Print list of files in container

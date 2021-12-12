@@ -1,10 +1,17 @@
 import pickle
 import shutil
 from pathlib import Path
+from typing import Any, Union
 
 
-def check_path(p: Path) -> Path:
-    """Create path if doesn't exist"""
+def check_path(p: Union[Path, str]) -> Path:
+    """Create path if doesn't exist
+
+    Returns
+    -------
+    Path
+        Path checked
+    """
     if isinstance(p, str):
         p = Path(p)
 
@@ -48,7 +55,7 @@ def save_pickle(obj: object, p: Path, name: str) -> Path:
     return p
 
 
-def load_pickle(p: Path) -> object:
+def load_pickle(p: Path) -> Any:
     """Load pickle from file"""
     with open(p, 'rb') as file:
         return pickle.load(file)
