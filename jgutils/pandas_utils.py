@@ -9,27 +9,6 @@ import pandas as pd
 from jgutils import functions as f
 
 
-def df_dict(m: dict, colname=None, prnt=True):
-    """Quick display of dataframe from dict
-
-    Parameters
-    ----------
-    m : dict
-        dictionary to display
-    colname : str, optional
-    prnt : bool, optional
-    """
-    from IPython.display import display
-
-    colname = colname or 'col1'
-    df = pd.DataFrame.from_dict(m, orient='index', columns=[colname])
-
-    if prnt:
-        display(df)
-    else:
-        return df
-
-
 def filter_df(dfall, symbol):
     return dfall[dfall.symbol == symbol].reset_index(drop=True)
 
@@ -155,3 +134,24 @@ def append_list(df: pd.DataFrame, lst: list) -> pd.DataFrame:
     """
     lst.append(df)
     return df
+
+
+def left_merge(df: pd.DataFrame, df_right: pd.DataFrame) -> pd.DataFrame:
+    """Convenience func to left merge df on index
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    df_right : pd.DataFrame
+
+    Returns
+    -------
+    pd.DataFrame
+        df with df_right merged
+    """
+    return df \
+        .merge(
+            right=df_right,
+            how='left',
+            left_index=True,
+            right_index=True)
