@@ -116,3 +116,25 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
         print(s)
     else:
         return s
+
+
+def nested_dict_update(m1: Dict[str, Any], m2: Dict[str, Any]) -> Dict[str, Any]:
+    """Nested update dict m1 with keys/vals from m2
+
+    Parameters
+    ----------
+    m1 : Dict[str, Any]
+    m2 : Dict[str, Any]
+
+    Returns
+    -------
+    Dict[str, Any]
+        updated dict
+    """
+    if not isinstance(m1, dict) or not isinstance(m2, dict):
+        return m1 if m2 is None else m2
+    else:
+        # Compute set of all keys in both dictionaries.
+        keys = set(m1.keys()) | set(m2.keys())
+
+        return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}
