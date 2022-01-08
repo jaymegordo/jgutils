@@ -155,3 +155,21 @@ def left_merge(df: pd.DataFrame, df_right: pd.DataFrame) -> pd.DataFrame:
             how='left',
             left_index=True,
             right_index=True)
+
+
+def convert_dtypes(df: pd.DataFrame, cols: List[str], _type: Union[str, type]) -> pd.DataFrame:
+    """Convert cols to dtype
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    cols : List[str]
+    _type : Union[str, type]
+        dtype to convert to
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    m_types = {c: lambda df, c=c: df[c].astype(_type) for c in cols}
+    return df.assign(**m_types)
