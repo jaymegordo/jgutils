@@ -309,7 +309,7 @@ def reorder_cols(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
 
 
 def terminal_df(
-        df: Union[pd.DataFrame, Styler],
+        df: Union[pd.DataFrame, 'Styler'],
         date_only: bool = True,
         show_na: bool = False,
         pad: bool = False,
