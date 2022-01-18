@@ -5,7 +5,9 @@ import re
 from typing import *
 
 import pandas as pd
-from pandas.io.formats.style import Styler
+
+if TYPE_CHECKING:
+    from pandas.io.formats.style import Styler
 
 from jgutils import functions as f
 
@@ -327,6 +329,7 @@ def terminal_df(
     pad : bool, optional
         print space before/after df, by default False
     """
+    from pandas.io.formats.style import Styler
     from tabulate import tabulate
 
     if isinstance(df, pd.DataFrame):
