@@ -6,6 +6,7 @@ https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/storage/azure-storag
 """
 
 import logging
+import re
 from pathlib import Path
 from typing import *
 
@@ -74,16 +75,22 @@ class BlobStorage():
         container = container or self.container
         return self.client.get_container_client(container)
 
-    def clear_container(self, container: Union[str, ContainerClient] = None) -> None:
+    def clear_container(
+            self,
+            container: Union[str, ContainerClient] = None,
+            match: str = '.') -> None:
         """Delete all files in container
 
         Parameters
         ----------
         container : Union[str, ContainerClient]
             container name
+        match : str, optional
+            only delete if filename matches pattern
         """
         container = self.get_container(container)
-        blob_list = [b.name for b in container.list_blobs()]
+        blob_list = [b.name for b in container.list_blobs()
+                     if re.search(match, b.name, flags=re.IGNORECASE)]
 
         # Delete blobs
         container.delete_blobs(*blob_list)
@@ -92,7 +99,8 @@ class BlobStorage():
             self,
             p: Path = None,
             container: Union[str, ContainerClient] = None,
-            mirror: bool = True) -> None:
+            mirror: bool = True,
+            match: str = '.') -> None:
         """Upload entire dir files to container
 
         Parameters
@@ -102,6 +110,8 @@ class BlobStorage():
         container : Union[str, ContainerClient], optional
         mirror : bool, optional
             if true, delete all contents from container first
+        match : str, optional
+            only upload if filename matches pattern
         """
         if p is None:
             p = self.p_local
@@ -110,13 +120,14 @@ class BlobStorage():
         container = self.get_container(container)
 
         if mirror:
-            self.clear_container(container)
+            self.clear_container(container, match=match)
 
         i = 0
         for _p in p.iterdir():
             if not _p.is_dir():
-                self.upload_file(p=_p, container=container, _log=False)
-                i += 1
+                if re.search(match, _p.name, flags=re.IGNORECASE):
+                    self.upload_file(p=_p, container=container, _log=False)
+                    i += 1
 
         log.info(
             f'Uploaded [{i}] file(s) to container "{container.container_name}"')
@@ -125,7 +136,8 @@ class BlobStorage():
             self,
             p: Path = None,
             container: Union[str, ContainerClient] = None,
-            mirror: bool = True) -> None:
+            mirror: bool = True,
+            match: str = '.') -> None:
         """Download entire container to local dir
 
         Parameters
@@ -135,6 +147,8 @@ class BlobStorage():
         container : Union[str, ContainerClient], optional
         mirror : bool, optional
             if true, clear local dir first, by default True
+        match : str, optional
+            only download if filename matches pattern
         """
         if p is None:
             p = self.p_local
@@ -144,15 +158,20 @@ class BlobStorage():
 
         if mirror:
             for _p in p.iterdir():
-                _p.unlink()
+                if re.search(match, _p.name, flags=re.IGNORECASE):
+                    _p.unlink()
 
         # blob here is BlobProperties
         i = 0
         try:
             for blob in container.list_blobs():
-                self.download_file(
-                    p=p / blob.name, container=container, _log=False)
-                i += 1
+
+                # limit files to download w re search
+                if re.search(match, blob.name, flags=re.IGNORECASE):
+                    self.download_file(
+                        p=p / blob.name, container=container, _log=False)
+
+                    i += 1
         except Exception as e:
             msg = f'Failed to download files from container "{container.container_name}"'
             # cm.discord(msg, channel='err', log=log.warning)
@@ -192,7 +211,11 @@ class BlobStorage():
 
         return p
 
-    def upload_file(self, p: Path, container: Union[str, ContainerClient] = None, _log: bool = True) -> None:
+    def upload_file(
+            self,
+            p: Path,
+            container: Union[str, ContainerClient] = None,
+            _log: bool = True) -> None:
         """Save local file to container
 
         Parameters
@@ -220,13 +243,15 @@ class BlobStorage():
         names = [c.name for c in self.client.list_containers()]
         f.pretty_dict(names)
 
-    def list_files(self, container: str = None) -> List[str]:
+    def list_files(self, container: str = None, match: str = '.') -> List[str]:
         """Get list of files in container
 
         Parameters
         ----------
         container : str, optional
             container to show files in, default self.container
+        match : str, optional
+            list if filename matches pattern
 
         Returns
         -------
@@ -234,9 +259,10 @@ class BlobStorage():
             list of files in container
         """
         _container = self.get_container(container)
-        return [b.name for b in _container.list_blobs()]
+        return sorted([b.name for b in _container.list_blobs()
+                       if re.search(match, b.name, flags=re.IGNORECASE)])
 
-    def show_files(self, container: str = None) -> None:
+    def show_files(self, container: str = None, **kw) -> None:
         """Print list of files in container
 
         Parameters
@@ -244,7 +270,7 @@ class BlobStorage():
         container : str, optional
             container to show files in, default self.container
         """
-        f.pretty_dict(self.list_files(container))
+        f.pretty_dict(self.list_files(container, **kw))
 
     def create_container(self, name: str) -> None:
         """Wrapper to create container in storage account
