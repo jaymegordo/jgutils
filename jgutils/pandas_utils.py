@@ -4,6 +4,7 @@ Pandas/DataFrame utils
 import re
 from typing import *
 
+import numpy as np
 import pandas as pd
 
 if TYPE_CHECKING:
@@ -78,7 +79,10 @@ def clean_cols(df: pd.DataFrame, cols: list) -> pd.DataFrame:
     return df[cols]
 
 
-def safe_drop(df: pd.DataFrame, cols: Union[str, list], do: bool = True) -> pd.DataFrame:
+def safe_drop(
+        df: pd.DataFrame,
+        cols: Union[str, list],
+        do: bool = True) -> pd.DataFrame:
     """Drop columns from dataframe if they exist
 
     Parameters
@@ -86,6 +90,8 @@ def safe_drop(df: pd.DataFrame, cols: Union[str, list], do: bool = True) -> pd.D
     df : pd.DataFrame
     cols : Union[str, list]
         list of cols or str
+    do : bool, default True
+        do or not, used for piping
 
     Returns
     -------
@@ -114,6 +120,23 @@ def safe_select(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     """
     cols = [c for c in cols if c in df.columns]
     return df[cols]
+
+
+def all_except(df: pd.DataFrame, exclude: Iterable[str]) -> List[str]:
+    """Return all cols in df except exclude
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    exclude : Iterable[str]
+        column names to exclude
+
+    Returns
+    -------
+    List[str]
+        list of all cols in df except exclude
+    """
+    return [col for col in df.columns if not any(col in lst for lst in exclude)]
 
 
 def reduce_dtypes(df: pd.DataFrame, dtypes: dict) -> pd.DataFrame:
@@ -332,15 +355,23 @@ def terminal_df(
     from pandas.io.formats.style import Styler
     from tabulate import tabulate
 
-    if isinstance(df, pd.DataFrame):
-        # truncate datetime to date only
-        if date_only:
-            m = {col: lambda x, col=col: x[col].dt.date for col in df.select_dtypes('datetime').columns}
-            df = df.assign(**m)
-    elif isinstance(df, Styler):
-        df = pd.read_html(df.to_html())[0]  # create string format dataframe from stylers html output
+    if isinstance(df, Styler):
+        # create string format dataframe from stylers html output
+        style = df  # type: Styler
+        index = style.data.index  # save to set after
+        # dtypes = style.data.dtypes
+        html = style.hide_index().to_html()
 
-    s = tabulate(df, headers=df.columns.tolist(), **kw)
+        # NOTE cant set back to orig types with .astype(dtypeps)
+        df = pd.read_html(html)[0] \
+            .set_index(index)
+
+    # truncate datetime to date only
+    if date_only:
+        m = {col: (lambda x, col=col: x[col].dt.date) for col in df.select_dtypes('datetime').columns}
+        df = df.assign(**m)
+
+    s = tabulate(df, headers='keys', **kw)
 
     if not show_na:
         s = s.replace('nan', '   ')
@@ -350,3 +381,45 @@ def terminal_df(
         s = f'\n{s}\n'
 
     print(s)
+
+
+def concat(df: pd.DataFrame, df_new: pd.DataFrame) -> pd.DataFrame:
+    """Concat self with new df
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        df to concat to
+    df_new : pd.DataFrame
+        new df to append
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    return pd.concat([df, df_new])
+
+
+def minmax_scale(s: pd.Series, feature_range=(0, 1)) -> np.ndarray:
+    """Linear interpolation
+    - Reimplementation of sklearn minmax_scale without having to import sklearn
+
+    Parameters
+    ----------
+    s : pd.Series
+    feature_range : tuple, optional
+        default (0, 1)
+
+    Returns
+    -------
+    np.ndarray
+    """
+    return np.interp(s, (s.min(), s.max()), feature_range)
+
+
+def split(df: pd.DataFrame, target: Union[List[str], str] = 'target') -> Tuple[pd.DataFrame, pd.Series]:
+    """Split off target col to make X and y"""
+    if isinstance(target, list) and len(target) == 1:
+        target = target[0]
+
+    return df.pipe(safe_drop, cols=target), df[target]
