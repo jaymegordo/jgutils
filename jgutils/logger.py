@@ -198,3 +198,20 @@ def highlight_filepath(s: str, color: str = 'blue') -> str:
     # stop at first backslash \ (color code)
     expr = r'(http|https.*|\/.*\/[^\s\\]*)'
     return re.sub(expr, f'{palette[color]}\\1{reset}', str(s))
+
+
+def get_stacktrace() -> str:
+    return '\n'.join(traceback.format_stack()[:-1])  # remove this function
+
+
+def save_stacktrace(fname: str = 'traceback') -> None:
+    tb_text = get_stacktrace()
+    with open(f'{fname}.txt', 'w') as file:
+        file.write(tb_text)
+
+
+def print_stacktrace():
+    colorizer = Colorizer(style='jayme')
+    lexer = pygments.lexers.get_lexer_by_name('pytb', stripall=True)
+    tb_colored = pygments.highlight(get_stacktrace(), lexer, colorizer.formatter)
+    print(tb_colored)
