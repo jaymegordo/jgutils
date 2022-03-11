@@ -2,6 +2,10 @@ SHELL := /bin/bash
 code := jgutils
 include .vscode/.env
 
+.PHONY : init
+init:  # install with optional deps locally
+	@poetry install -E terminaldf -E colorlogging -E azurestorage
+
 .PHONY : format
 format:  ## autopep, isort, flake
 	@poetry run autopep8 --recursive --in-place $(code)
