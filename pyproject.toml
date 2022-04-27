@@ -35,3 +35,12 @@ terminaldf = ["tabulate", "lxml"]
 [build-system]
 requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+reportWildcardImportFromLibrary = "none"
+reportUnboundVariable = "information"
+reportMissingImports = "information"
+reportGeneralTypeIssues = "information"
+reportOptionalIterable = "none"
+reportOptionalMemberAccess = "information"
+reportOptionalSubscript = "information"

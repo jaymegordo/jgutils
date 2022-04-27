@@ -360,7 +360,7 @@ def terminal_df(
         style = df  # type: Styler
         index = style.data.index  # save to set after
         # dtypes = style.data.dtypes
-        html = style.hide_index().to_html()
+        html = style.hide(axis='index').to_html()
 
         # NOTE cant set back to orig types with .astype(dtypeps)
         df = pd.read_html(html)[0] \
