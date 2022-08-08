@@ -138,3 +138,140 @@ def nested_dict_update(m1: Dict[str, Any], m2: Dict[str, Any]) -> Dict[str, Any]
         keys = set(m1.keys()) | set(m2.keys())
 
         return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}
+
+
+class PrettyDict():
+    """class to print a tree of nested dicts with key colored by ansi escape codes based on depth"""
+
+    def __init__(
+            self,
+            m: Union[Dict[str, Any], List[Dict[str, Any]]],
+            max_keys: int = 100):
+        """
+
+        Parameters
+        ----------
+        m : Union[Dict[str, Any], List[Dict[str, Any]]]
+            dict or list of dicts to display
+        max_keys : int, optional
+            max dict keys to display per level, by default 100
+            - NOTE could allow passing max_keys per level
+
+        """
+
+        self.m = m
+        self.max_keys = max_keys
+
+        self.ansi_colors = {
+            'green': '\033[32m',
+            'blue': '\033[34m',
+            'yellow': '\033[33m',
+            'red': '\033[31m',
+            'cyan': '\033[36m',
+            'reset': '\033[0m'
+        }
+
+        # list ansi escape codes for each level of depth
+        self.ansi_colors_list = list(self.ansi_colors.values())
+
+    def __str__(self) -> str:
+        return self.pretty_print(self.m)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def pretty_print(self, m: Union[Dict[str, Any], List[Dict[str, Any]]], depth: int = 0) -> str:
+        """Recursively pretty print nested dicts with keys colored by depth
+
+        Parameters
+        ----------
+        m : Union[Dict[str, Any], List[Dict[str, Any]]]
+            nested dict or list of dicts to pretty print
+        depth : int, optional
+            depth of current dict, default 0
+
+        Returns
+        -------
+        str
+            pretty printed nested dict
+        """
+        ret = ''
+        depth_indent = depth * '  '
+        lst = self.ansi_colors_list
+        reset = self.ansi_colors['reset']
+        i = 0
+
+        if isinstance(m, dict):
+            for k, v in m.items():
+
+                if isinstance(v, dict):
+                    ret += f'{depth_indent}{lst[depth]}{k}{reset}:\n{self.pretty_print(v, depth + 1)}'
+                else:
+                    # join list of dicts into single value
+                    if isinstance(v, list):
+                        v = '\n' + '\n'.join([self.pretty_print(item, depth + 1) for item in v])
+
+                    ret += f'{depth_indent}{lst[depth]}{k}{reset}: {v}\n'
+
+                i += 1
+                if i >= self.max_keys:
+                    ret += f'{depth_indent}...\n'
+                    break
+
+        elif isinstance(m, list):
+            for item in m:
+                if isinstance(item, dict):
+                    ret += self.pretty_print(item, depth + 1)
+                else:
+                    ret += f'{depth_indent}{item}\n'
+
+        else:
+            ret += f'{depth_indent}{m}'
+
+        return ret
+
+
+class PrettyString():
+    """class to print string with ansi escape code colors"""
+
+    def __init__(self, s: str, color: str = 'green', prehighlight: bool = False):
+        self.s = s
+        self.prehighlight = prehighlight
+        self.color = color
+        self.ansi_codes = {
+            'green': '\033[32m',
+            'yellow': '\033[33m',
+            'blue': '\033[34m',
+            'red': '\033[31m',
+            'cyan': '\033[36m',
+            'reset': '\033[0m'
+        }
+
+    def __str__(self):
+        if self.prehighlight:
+            return self.s
+        else:
+            return self.pretty_print(self.s)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def print(self):
+        print(self)
+
+    def pretty_print(self, s: str) -> str:
+        """Print a string with ansi escape code colors
+
+        Parameters
+        ----------
+        s : str
+            string to print
+        color : str, optional
+            color to use, default 'green'
+
+        Returns
+        -------
+        str
+            string with ansi escape code colors
+        """
+        return f'{self.ansi_codes[self.color]}{s}{self.ansi_codes["reset"]}'
