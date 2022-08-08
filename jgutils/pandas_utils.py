@@ -301,10 +301,15 @@ def remove_underscore(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(columns={c: c.replace('_', ' ') for c in df.columns})
 
 
-def parse_datecols(df: pd.DataFrame) -> pd.DataFrame:
+def parse_datecols(df: pd.DataFrame, include_cols: Union[List[str], None] = None) -> pd.DataFrame:
     """Convert any columns with 'date' or 'time' in header name to datetime"""
+    if include_cols is None:
+        include_cols = []
+
+    date_cols = ['date', 'time'] + include_cols
+
     datecols = list(filter(lambda x: any(s in x.lower()
-                    for s in ('date', 'time')), df.columns))  # type: List[str]
+                    for s in date_cols), df.columns))  # type: List[str]
 
     m = {col: lambda df, col=col: pd.to_datetime(
         arg=df[col],
