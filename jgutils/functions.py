@@ -179,6 +179,9 @@ class PrettyDict():
 
     def __repr__(self):
         return self.__str__()
+    
+    def print(self):
+        print(self.__str__())
 
     def pretty_print(self, m: Union[Dict[str, Any], List[Dict[str, Any]]], depth: int = 0) -> str:
         """Recursively pretty print nested dicts with keys colored by depth
