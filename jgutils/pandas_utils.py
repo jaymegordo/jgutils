@@ -254,6 +254,22 @@ def to_snake(s: str):
         .replace(' ', '_') \
         .replace('__', '_')
 
+def to_title(s: str, max_upper: int = -1) -> str:
+    """Convert from snake_case cols to Title Case or UPPER
+
+    Parameters
+    ----------
+    s : str
+        string to convert to title case
+    max_upper : int, optional
+        convert strings less than or equal to this lengh to upper, by default 10_000
+
+    Returns
+    -------
+    str
+        title or upper case string
+    """
+    return s.replace('_', ' ').title() if len(s) > max_upper else s.upper()
 
 def lower_cols(df: Union[pd.DataFrame, List[str]], title: bool = False) -> Union[pd.DataFrame, List[str]]:
     """Convert df columns to snake case and remove bad characters
