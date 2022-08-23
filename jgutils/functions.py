@@ -1,6 +1,7 @@
 import json
 import re
 import sys
+from pathlib import Path
 from typing import *
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
@@ -138,6 +139,27 @@ def nested_dict_update(m1: Dict[str, Any], m2: Dict[str, Any]) -> Dict[str, Any]
         keys = set(m1.keys()) | set(m2.keys())
 
         return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}
+
+
+def check_path(p: Union[Path, str]) -> Path:
+    """Create path if doesn't exist
+
+    Returns
+    -------
+    Path
+        Path checked
+    """
+    p = Path(p)
+
+    if p.exists():
+        return p
+
+    p_create = p if p.is_dir() or not '.' in p.name else p.parent
+
+    # if file, create parent dir, else create dir
+    p_create.mkdir(parents=True, exist_ok=True)
+
+    return p
 
 
 class PrettyDict():
