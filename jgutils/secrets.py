@@ -8,9 +8,9 @@ import pandas as pd
 import yaml
 from cryptography.fernet import Fernet
 
-from jgutils.logger import getlog
+from jgutils.logger import get_log
 
-log = getlog(__name__)
+log = get_log(__name__)
 
 
 class SecretsManager(object):

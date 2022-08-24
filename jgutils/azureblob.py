@@ -15,10 +15,10 @@ from azure.storage.blob import (BlobClient, BlobServiceClient,  # noqa
 
 from jgutils import fileops as fl
 from jgutils import functions as f
-from jgutils.logger import getlog
+from jgutils.logger import get_log
 from jgutils.secrets import SecretsManager
 
-log = getlog(__name__)
+log = get_log(__name__)
 
 # azure blob logs every http request by default
 logging.getLogger('azure.core.pipeline.policies').setLevel(logging.WARNING)

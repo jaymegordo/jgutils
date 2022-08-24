@@ -6,7 +6,8 @@ import sys
 import traceback
 from logging.handlers import RotatingFileHandler
 
-from jgutils.config import AZURE_WEB
+from jgutils import StrNone
+from jgutils.config import IS_REMOTE
 
 try:
     import colored_traceback
@@ -28,6 +29,7 @@ _palette = dict(
     green=32,
     yellow=33,
     blue=34,
+    magenta=35,
     cyan=36,
     white=37,
     underline=4,
@@ -102,8 +104,27 @@ class ColoredFormatter(Formatter):
         return s
 
 
-if not AZURE_WEB:
-    # local app, use colored formatter
+class CustomLogger(logging.Logger):
+    """Custom logger to send error logs to slack channel
+    """
+
+    # def __init__(self, name: str, *args, **kwargs) -> None:
+    #     super().__init__(name, *args, **kwargs)
+
+    def error(self, msg: StrNone = None, *args, **kwargs) -> None:
+        """Send error to slack channel
+        """
+        if IS_REMOTE:
+            from jambot.comm import send_error
+            send_error(msg=msg)
+
+        kwargs['exc_info'] = True
+        super().error(msg, *args, **kwargs)
+
+
+# TODO move this messy code into CustomLogger
+if not IS_REMOTE:
+    # local, use colored formatter
     StreamFormatter = ColoredFormatter
 else:
     StreamFormatter = logging.Formatter
@@ -118,7 +139,7 @@ sh.setFormatter(stream_formatter)
 log_path = os.getenv('file_log_path', None)
 fh = None
 
-if not log_path is None and not AZURE_WEB:
+if not log_path is None and not IS_REMOTE:
     _fmt_file = '%(asctime)s  %(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
     fmt_file = logging.Formatter(_fmt_file, datefmt='%m-%d %H:%M:%S')
 
@@ -128,9 +149,10 @@ if not log_path is None and not AZURE_WEB:
 
 # NOTE could do logging.basicConfig(handlers=[sh, fh]) to catch everything
 # logging.basicConfig(handlers=[sh, fh], level=logging.DEBUG)
+logging.setLoggerClass(CustomLogger)
 
 
-def getlog(name: str) -> logging.Logger:
+def get_log(name: str) -> logging.Logger:
     """Create logger object with predefined stream handler & formatting
     - need to instantiate with logging.getLogger to inherit from azure's root logger
 
@@ -145,8 +167,8 @@ def getlog(name: str) -> logging.Logger:
 
     Examples
     --------
-    >>> from jambot.logger import getlog
-    >>> log = getlog(__name__)
+    >>> from jambot.logger import get_log
+    >>> log = get_log(__name__)
     """
     # remove __app__ prefix for azure
     name = name.replace('__app__.', '')
@@ -159,7 +181,7 @@ def getlog(name: str) -> logging.Logger:
     log = logging.getLogger(name)
     log.setLevel(logging.DEBUG)
 
-    if not AZURE_WEB:
+    if not IS_REMOTE:
         # this prevents duplicate outputs (eg for pytest)
         log.propagate = False
 
@@ -174,8 +196,6 @@ def getlog(name: str) -> logging.Logger:
 
 def highlight_filepath(s: str, color: str = 'blue') -> str:
     """Highlight filepath string for output in terminal
-
-    - TODO confirm https for url
 
     Parameters
     ----------
@@ -196,7 +216,7 @@ def highlight_filepath(s: str, color: str = 'blue') -> str:
     reset = match[0] if match else palette['reset']
 
     # stop at first backslash \ (color code)
-    expr = r'(http|https.*|\/.*\/[^\s\\]*)'
+    expr = r'(\S*\/.*\/[^\\]*?(?:.*\.\w{1,10}|(?=\s)|.*\/))'
     return re.sub(expr, f'{palette[color]}\\1{reset}', str(s))
 
 
