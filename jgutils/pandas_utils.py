@@ -2,7 +2,12 @@
 Pandas/DataFrame utils
 """
 import re
-from typing import *
+from typing import TYPE_CHECKING
+from typing import Iterable
+from typing import List
+from typing import Tuple
+from typing import Union
+from typing import overload
 
 import numpy as np
 import pandas as pd
@@ -254,6 +259,7 @@ def to_snake(s: str):
         .replace(' ', '_') \
         .replace('__', '_')
 
+
 def to_title(s: str, max_upper: int = -1) -> str:
     """Convert from snake_case cols to Title Case or UPPER
 
@@ -270,6 +276,17 @@ def to_title(s: str, max_upper: int = -1) -> str:
         title or upper case string
     """
     return s.replace('_', ' ').title() if len(s) > max_upper else s.upper()
+
+
+@overload
+def lower_cols(df: pd.DataFrame) -> pd.DataFrame:
+    ...
+
+
+@overload
+def lower_cols(df: List[str]) -> List[str]:
+    ...
+
 
 def lower_cols(df: Union[pd.DataFrame, List[str]], title: bool = False) -> Union[pd.DataFrame, List[str]]:
     """Convert df columns to snake case and remove bad characters

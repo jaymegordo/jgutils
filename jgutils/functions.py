@@ -6,8 +6,10 @@ from typing import *
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
+from typing import TypeVar
+T = TypeVar('T')
 
-def as_list(items: Any) -> List[Any]:
+def as_list(items: Type[T]) -> Union[List[T], T]:
     """Check item(s) is list, make list if not"""
     if not isinstance(items, list):
         items = [items]
