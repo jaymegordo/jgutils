@@ -10,4 +10,4 @@ SYS_FROZEN = getattr(sys, 'frozen', False)
 IS_LINUX = sys.platform.startswith('linux')
 IS_LAMBDA = 'AWS_EXECUTION_ENV' in os.environ
 IS_GITHUB = 'GITHUB_ENV' in os.environ
-IS_REMOTE = IS_LAMBDA or IS_GITHUB or IS_LINUX 
+IS_REMOTE = IS_LAMBDA or IS_GITHUB or IS_LINUX

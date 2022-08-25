@@ -10,8 +10,9 @@ import re
 from pathlib import Path
 from typing import *
 
-from azure.storage.blob import (BlobClient, BlobServiceClient,  # noqa
-                                ContainerClient)
+from azure.storage.blob import BlobClient  # noqa
+from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import ContainerClient
 
 from jgutils import fileops as fl
 from jgutils import functions as f

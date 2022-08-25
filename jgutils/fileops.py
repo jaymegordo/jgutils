@@ -1,7 +1,10 @@
 import pickle
 import shutil
+from datetime import datetime as dt
+from datetime import timedelta as delta
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
+from typing import Union
 
 
 def check_path(p: Union[Path, str]) -> Path:
@@ -82,3 +85,56 @@ def unzip(p: Path, p_dst: Path = None, delete: bool = False) -> Path:
         p.unlink()
 
     return p
+
+
+def date_created(p: Path) -> dt:
+    """Get date from folder date created
+
+    Parameters
+    ----------
+    p : Path
+        Folder path to check
+
+    Returns
+    -------
+    dt
+        date created
+    """
+    return dt.fromtimestamp(p.stat().st_birthtime)
+
+
+def date_modified(p: Path) -> dt:
+    """Get date file/folder modified
+
+    Parameters
+    ----------
+    p : Path
+        file/folder path to check
+
+    Returns
+    -------
+    dt
+        date modified
+    """
+    return dt.fromtimestamp(p.stat().st_mtime)
+
+
+def older_than(p: Path, minutes: int) -> bool:
+    """Check if file/folder is older than minutes
+
+    Parameters
+    ----------
+    p : Path
+        file/folder path to check
+    minutes : int
+        minutes to check against
+
+    Returns
+    -------
+    bool
+        if file/folder is older than minutes
+    """
+    if not p.exists():
+        return False
+
+    return date_modified(p) < dt.now() + delta(minutes=-minutes)
