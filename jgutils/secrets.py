@@ -8,6 +8,7 @@ import pandas as pd
 import yaml
 from cryptography.fernet import Fernet
 
+from jgutils import StrNone
 from jgutils.logger import get_log
 
 log = get_log(__name__)
@@ -52,7 +53,7 @@ class SecretsManager(object):
 
     p_key = lst_keys[0]
 
-    def __init__(self, load_filename: str = None):
+    def __init__(self, load_filename: StrNone = None):
         # filename to load secrets from
         self.load_filename = load_filename
 

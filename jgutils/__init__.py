@@ -1,3 +1,5 @@
-from typing import Union
+from typing import Optional
 
-StrNone = Union[str, None]
+StrNone = Optional[str]
+FloatFone = Optional[float]
+IntNone = Optional[int]

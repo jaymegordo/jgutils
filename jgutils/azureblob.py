@@ -14,6 +14,7 @@ from azure.storage.blob import BlobClient  # noqa
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
 
+from jgutils import StrNone
 from jgutils import fileops as fl
 from jgutils import functions as f
 from jgutils.logger import get_log
@@ -244,7 +245,7 @@ class BlobStorage():
         names = [c.name for c in self.client.list_containers()]
         f.pretty_dict(names)
 
-    def list_files(self, container: str = None, match: str = '.') -> List[str]:
+    def list_files(self, container: StrNone = None, match: str = '.') -> List[str]:
         """Get list of files in container
 
         Parameters
@@ -263,7 +264,7 @@ class BlobStorage():
         return sorted([b.name for b in _container.list_blobs()
                        if re.search(match, b.name, flags=re.IGNORECASE)])
 
-    def show_files(self, container: str = None, **kw) -> None:
+    def show_files(self, container: StrNone = None, **kw) -> None:
         """Print list of files in container
 
         Parameters

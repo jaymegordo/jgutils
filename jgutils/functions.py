@@ -2,20 +2,42 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
 from typing import TypeVar
-from typing import *
+from typing import Union
+
+from jambot import Listable
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
 T = TypeVar('T')
 
 
-def as_list(items: Type[T]) -> Union[List[T], T]:
+def as_list(items: Listable[T]) -> List[T]:
     """Check item(s) is list, make list if not"""
     if not isinstance(items, list):
         items = [items]
 
     return items
+
+
+def flatten_list_list(lst: Iterable[list]) -> list:
+    """Flatten single level nested list of lists
+
+    Parameters
+    ----------
+    lst : Iterable[list]
+
+    Returns
+    -------
+    list
+        flattened list
+    """
+    return [item for sublist in lst for item in sublist]
 
 
 def safe_append(lst: list, item: Union[list, Any]) -> None:
