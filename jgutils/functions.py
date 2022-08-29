@@ -2,15 +2,15 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any
-from typing import Dict
+from typing import Any, Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import TypeVar
 from typing import Union
 
-from jambot import Listable
+from jgutils import DictAny
+from jgutils import Listable
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
@@ -144,17 +144,17 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
         return s
 
 
-def nested_dict_update(m1: Dict[str, Any], m2: Dict[str, Any]) -> Dict[str, Any]:
+def nested_dict_update(m1: DictAny, m2: DictAny) -> DictAny:
     """Nested update dict m1 with keys/vals from m2
 
     Parameters
     ----------
-    m1 : Dict[str, Any]
-    m2 : Dict[str, Any]
+    m1 : DictAny
+    m2 : DictAny
 
     Returns
     -------
-    Dict[str, Any]
+    DictAny
         updated dict
     """
     if not isinstance(m1, dict) or not isinstance(m2, dict):
@@ -192,13 +192,13 @@ class PrettyDict():
 
     def __init__(
             self,
-            m: Union[Dict[str, Any], List[Dict[str, Any]]],
+            m: Union[DictAny, List[DictAny]],
             max_keys: int = 100):
         """
 
         Parameters
         ----------
-        m : Union[Dict[str, Any], List[Dict[str, Any]]]
+        m : Union[DictAny, List[DictAny]]
             dict or list of dicts to display
         max_keys : int, optional
             max dict keys to display per level, by default 100
@@ -229,6 +229,10 @@ class PrettyDict():
 
     def print(self):
         print(self.__str__())
+
+    def display(self):
+        from IPython.display import display
+        display(self)
 
     def pretty_print(self, m: Union[Dict[str, Any], List[Dict[str, Any]]], depth: int = 0) -> str:
         """Recursively pretty print nested dicts with keys colored by depth
@@ -271,7 +275,7 @@ class PrettyDict():
         elif isinstance(m, list):
             for item in m:
                 if isinstance(item, dict):
-                    ret += self.pretty_print(item, depth + 1)
+                    ret += self.pretty_print(item, depth + 1) + '\n'
                 else:
                     ret += f'{depth_indent}{item}\n'
 

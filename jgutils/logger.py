@@ -118,7 +118,7 @@ class CustomLogger(logging.Logger):
             from jambot.comm import send_error
             send_error(msg=msg)
 
-        kwargs['exc_info'] = True
+        # kwargs['exc_info'] = True  # not sure why this causes error in IPYthon now
         super().error(msg, *args, **kwargs)
 
 

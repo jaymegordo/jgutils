@@ -3,6 +3,7 @@ Pandas/DataFrame utils
 """
 import re
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import Iterable
 from typing import List
 from typing import Tuple
@@ -463,3 +464,8 @@ def split(df: pd.DataFrame, target: Union[List[str], str] = 'target') -> Tuple[p
         target = target[0]
 
     return df.pipe(safe_drop, cols=target), df[target]
+
+
+def xs(df: pd.DataFrame, idx_key: Tuple[Any]) -> pd.DataFrame:
+    """Cross section of df"""
+    return df.xs(idx_key, drop_level=False)  # type: ignore
