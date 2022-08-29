@@ -2,7 +2,8 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
