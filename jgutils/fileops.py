@@ -120,7 +120,7 @@ def date_modified(p: Path) -> dt:
 
 
 def older_than(p: Path, minutes: int) -> bool:
-    """Check if file/folder is older than minutes
+    """Check if file/folder is older than x minutes OR doesn't exist
 
     Parameters
     ----------
@@ -135,6 +135,6 @@ def older_than(p: Path, minutes: int) -> bool:
         if file/folder is older than minutes
     """
     if not p.exists():
-        return False
+        return True
 
     return date_modified(p) < dt.now() + delta(minutes=-minutes)
