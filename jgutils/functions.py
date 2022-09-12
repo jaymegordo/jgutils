@@ -12,6 +12,7 @@ from typing import Union
 
 from jgutils import DictAny
 from jgutils import Listable
+from jgutils import config as cf
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
@@ -329,4 +330,7 @@ class PrettyString():
         str
             string with ansi escape code colors
         """
+        if cf.IS_REMOTE:
+            return s
+
         return f'{self.ansi_codes[self.color]}{s}{self.ansi_codes["reset"]}'

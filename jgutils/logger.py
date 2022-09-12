@@ -108,8 +108,11 @@ class CustomLogger(logging.Logger):
     """Custom logger to send error logs to slack channel
     """
 
-    # def __init__(self, name: str, *args, **kwargs) -> None:
-    #     super().__init__(name, *args, **kwargs)
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        super().__init__(name, *args, **kwargs)
+
+        # this prevents duplicate outputs (eg for pytest)
+        self.propagate = False
 
     def error(self, msg: StrNone = None, *args, **kwargs) -> None:
         """Send error to slack channel
@@ -181,9 +184,9 @@ def get_log(name: str) -> logging.Logger:
     log = logging.getLogger(name)
     log.setLevel(logging.DEBUG)
 
-    if not IS_REMOTE:
-        # this prevents duplicate outputs (eg for pytest)
-        log.propagate = False
+    # if not IS_REMOTE:
+    #     # this prevents duplicate outputs (eg for pytest)
+    #     log.propagate = False
 
     if not log.handlers:
         log.addHandler(sh)
