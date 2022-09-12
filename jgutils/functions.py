@@ -331,6 +331,6 @@ class PrettyString():
             string with ansi escape code colors
         """
         if cf.IS_REMOTE:
-            return s
+            return str(s)
 
         return f'{self.ansi_codes[self.color]}{s}{self.ansi_codes["reset"]}'
