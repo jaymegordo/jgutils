@@ -7,6 +7,7 @@ from typing import Any
 from typing import Iterable
 from typing import List
 from typing import Tuple
+from typing import TypeVar
 from typing import Union
 from typing import overload
 
@@ -16,7 +17,10 @@ import pandas as pd
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
 
+from jgutils import Listable
 from jgutils import functions as f
+
+TupleType = TypeVar('TupleType', bound=Tuple[str, ...])
 
 
 def filter_df(dfall, symbol):
@@ -87,15 +91,14 @@ def clean_cols(df: pd.DataFrame, cols: list) -> pd.DataFrame:
 
 def safe_drop(
         df: pd.DataFrame,
-        cols: Union[str, list],
+        cols: Listable[str],
         do: bool = True) -> pd.DataFrame:
     """Drop columns from dataframe if they exist
 
     Parameters
     ----------
     df : pd.DataFrame
-    cols : Union[str, list]
-        list of cols or str
+    cols : Listable[str]
     do : bool, default True
         do or not, used for piping
 
@@ -469,3 +472,44 @@ def split(df: pd.DataFrame, target: Union[List[str], str] = 'target') -> Tuple[p
 def xs(df: pd.DataFrame, idx_key: Tuple[Any]) -> pd.DataFrame:
     """Cross section of df"""
     return df.xs(idx_key, drop_level=False)  # type: ignore
+
+
+def index_date_to_int(df: pd.DataFrame, ts_col: str = 'timestamp') -> pd.DataFrame:
+    """Convert datetimeindex to int"""
+    idx_names = df.index.names
+    return df.reset_index(drop=False) \
+        .assign(**{ts_col: lambda df: df[ts_col].astype(int)}) \
+        .set_index(idx_names)
+
+
+def index_date_from_int(df: pd.DataFrame, ts_col: str = 'timestamp') -> pd.DataFrame:
+    """Convert datetimeindex from int"""
+    idx_names = df.index.names
+    return df.reset_index(drop=False) \
+        .assign(**{ts_col: lambda df: pd.to_datetime(df[ts_col])}) \
+        .set_index(idx_names)
+
+
+def get_unique_index(df: pd.DataFrame, cols: TupleType) -> List[TupleType]:
+    """Get list of unique index values for given cols
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    cols : TupleType
+        list or tuple of cols to include
+
+    Returns
+    -------
+    List[TupleType]
+    """
+    exclude = tuple([col for col in df.index.names if not col in cols])
+    return df.index.droplevel(exclude).unique().tolist()
+
+
+def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
+    """Flatten multiindex to single index"""
+    df = df.copy()
+    cols = ['_'.join(col).strip() for col in df.columns.to_flat_index()]
+    df.columns = cols
+    return df

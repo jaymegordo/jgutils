@@ -111,7 +111,7 @@ class CustomLogger(logging.Logger):
     def __init__(self, name: str, *args, **kwargs) -> None:
         super().__init__(name, *args, **kwargs)
 
-        # this prevents duplicate outputs (eg for pytest)
+        # this prevents duplicate outputs (eg for pytest and on aws lambda)
         self.propagate = False
 
     def error(self, msg: StrNone = None, *args, **kwargs) -> None:
@@ -183,10 +183,6 @@ def get_log(name: str) -> logging.Logger:
 
     log = logging.getLogger(name)
     log.setLevel(logging.DEBUG)
-
-    # if not IS_REMOTE:
-    #     # this prevents duplicate outputs (eg for pytest)
-    #     log.propagate = False
 
     if not log.handlers:
         log.addHandler(sh)

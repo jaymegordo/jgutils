@@ -22,7 +22,10 @@ T = TypeVar('T')
 def as_list(items: Listable[T]) -> List[T]:
     """Check item(s) is list, make list if not"""
     if not isinstance(items, list):
-        items = [items]
+        if isinstance(items, tuple):
+            items = list(items)
+        else:
+            items = [items]
 
     return items
 
