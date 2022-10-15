@@ -19,8 +19,21 @@ SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 T = TypeVar('T')
 
 
-def as_list(items: Listable[T]) -> List[T]:
-    """Check item(s) is list, make list if not"""
+def as_list(items: Optional[Listable[T]]) -> List[T]:
+    """Convert single item or list/tuple of items to list
+    - if items is None, return empty list
+
+    Parameters
+    ----------
+    items : Listable[T]
+
+    Returns
+    -------
+    List[T]
+    """
+    if items is None:
+        return []
+
     if not isinstance(items, list):
         if isinstance(items, tuple):
             items = list(items)
