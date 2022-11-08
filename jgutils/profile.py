@@ -26,7 +26,7 @@ from seaborn import diverging_palette
 from jgutils import StrNone
 from jgutils import config as cf
 from jgutils import re_utils as ru
-from jgutils.functions import PrettyDict as PD
+from jgutils.pretty import PrettyDict as PD
 
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
