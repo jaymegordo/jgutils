@@ -2,14 +2,8 @@
 Pandas/DataFrame utils
 """
 import re
-from typing import TYPE_CHECKING
-from typing import Any
-from typing import Iterable
-from typing import List
-from typing import Tuple
-from typing import TypeVar
-from typing import Union
-from typing import overload
+from typing import (
+    TYPE_CHECKING, Any, Iterable, List, Tuple, TypeVar, Union, overload)
 
 import numpy as np
 import pandas as pd
@@ -513,3 +507,20 @@ def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
     cols = ['_'.join(col).strip() for col in df.columns.to_flat_index()]
     df.columns = cols
     return df
+
+def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') -> pd.DataFrame:
+    """Fill na with fill_val for given dtype
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+    fill_val : str, optional
+        value to fill na with, by default ''
+    dtype : str, optional
+        dtype to fill na for, by default 'object'
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    return df.pipe(lambda df: df.fillna({c: fill_val for c in df.select_dtypes(dtype).columns}))
