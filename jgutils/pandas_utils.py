@@ -508,9 +508,10 @@ def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = cols
     return df
 
+
 def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') -> pd.DataFrame:
     """Fill na with fill_val for given dtype
-    
+
     Parameters
     ----------
     df : pd.DataFrame
