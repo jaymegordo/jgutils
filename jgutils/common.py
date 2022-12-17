@@ -16,10 +16,29 @@ except ModuleNotFoundError:
 class DictRepr(object, metaclass=ABCMeta):
     """Class to add better string rep with to_dict"""
     display_keys = []  # type: List[str]
+    max_key_len = 40
 
     def to_dict_str(self):
         """TODO func to convert values of output dicts to string reprs based on dtype"""
         pass
+
+    def truncate(self, text: Any) -> str:
+        """Truncate display value to max_key_len
+
+        Parameters
+        ----------
+        text : str
+
+        Returns
+        -------
+        str
+        """
+        try:
+            text = str(text)
+            return text[:self.max_key_len] + '...' if len(text) > self.max_key_len else text
+        except:
+            return text
+        
 
     def __str__(self) -> str:
         """Create string representation of self from dict or list of strings"""
@@ -37,7 +56,7 @@ class DictRepr(object, metaclass=ABCMeta):
             m = {k: getattr(self, k) for k in m}
 
         if m:
-            data = ['{}={}'.format(k, PS(v, color='yellow')) for k, v in m.items()]
+            data = ['{}={}'.format(k, PS(self.truncate(v), color='yellow')) for k, v in m.items()]
 
         return '<{}: {}>'.format(
             PS(self.__class__.__name__, color='blue'),

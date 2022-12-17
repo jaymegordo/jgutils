@@ -72,7 +72,7 @@ def safe_append(lst: list, item: Union[list, Any]) -> None:
         lst.append(item)
 
 
-def set_self(exclude: Optional[Union[tuple, str]] = None, include: Optional[Union[dict, None]] = None):
+def set_self(exclude: Optional[Union[tuple, str]] = None, include: Optional[DictAny] = None):
     """Convenience func to assign an object's func's local vars to self"""
     fr = sys._getframe(1)
     # code = fr.f_code

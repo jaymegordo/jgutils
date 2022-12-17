@@ -3,12 +3,11 @@ General regex string processing functions
 """
 
 import re
-from typing import List
-from typing import Tuple
-from typing import Union
+from typing import List, Tuple, Union
 
 import pandas as pd
 
+from jgutils import FloatNone, StrNone
 from jgutils.logger import get_log
 
 log = get_log(__name__)
@@ -32,7 +31,7 @@ DAYS = set([
 RE_DAYS = re.compile(r'\b(' + '|'.join(DAYS) + r')\b', re.IGNORECASE)
 
 
-def extract_date(text: str) -> Union[str, None]:
+def extract_date(text: str) -> StrNone:
     """Try to extract date (eg 'June 30, 2021') in word format from text
 
     Parameters
@@ -42,7 +41,7 @@ def extract_date(text: str) -> Union[str, None]:
 
     Returns
     -------
-    Union[str, None]
+    StrNone
         date in word format, or None if no date found
     """
     expr = r'\w+\s+\d{1,2}[,/]\s+\d{4}'
@@ -97,7 +96,7 @@ def sub_numbers(text: str) -> str:
     return re.sub(r' \d+', ' number', text)
 
 
-def parse_currency(text: str) -> Union[float, None]:
+def parse_currency(text: str) -> FloatNone:
     """
     Parse currency from text
     - TODO this will need more testing
@@ -157,7 +156,7 @@ def parse_date(s: str):
         return pd.NaT
 
 
-def parse_string(s: str) -> Union[str, None]:
+def parse_string(s: str) -> StrNone:
     """Check if string value does NOT contain valid currency or date
 
     Parameters
@@ -167,7 +166,7 @@ def parse_string(s: str) -> Union[str, None]:
 
     Returns
     -------
-    Union[str, None]
+    StrNone
         same input string as long as it does not contain currency or date
     """
     exclude_funcs = [parse_currency, parse_date]
