@@ -47,6 +47,7 @@ class PrettyDict(PrettyDisplayItem):
             self,
             m: Union[Dict[str, Any], List[Dict[str, Any]]],
             max_keys: int = 100,
+            max_rows: int = 100,
             color: bool = True):
         """
         Parameters
@@ -62,6 +63,7 @@ class PrettyDict(PrettyDisplayItem):
 
         self.m = m
         self.max_keys = max_keys
+        self.max_rows = max_rows
 
         # list ansi escape codes for each level of depth
         self.ansi_codes_list = list(self.ansi_codes.values())[:-1]
@@ -92,7 +94,8 @@ class PrettyDict(PrettyDisplayItem):
         depth_indent = depth * '  '
         lst = self.ansi_codes_list
         reset = self.ansi_codes['reset']
-        i = 0
+        i_dict = 0
+        i_list = 0
 
         if isinstance(m, dict):
             for k, v in m.items():
@@ -106,8 +109,8 @@ class PrettyDict(PrettyDisplayItem):
 
                     ret += f'{depth_indent}{lst[depth]}{k}{reset}: {v}\n'
 
-                i += 1
-                if i >= self.max_keys:
+                i_dict += 1
+                if i_dict >= self.max_keys:
                     ret += f'{depth_indent}...\n'
                     break
 
@@ -117,6 +120,11 @@ class PrettyDict(PrettyDisplayItem):
                     ret += self.pretty_print(item, depth + 1) + '\n'
                 else:
                     ret += f'{depth_indent}{item}\n'
+
+                i_list += 1
+                if i_list >= self.max_rows:
+                    ret += f'{depth_indent}... ({self.max_rows:,.0f}/{len(m):,.0f})\n'
+                    break
 
         else:
             ret += f'{depth_indent}{m}'
