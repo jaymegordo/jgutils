@@ -3,7 +3,6 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
-from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -12,7 +11,6 @@ from typing import Union
 
 from jgutils import DictAny
 from jgutils import Listable
-from jgutils import config as cf
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
@@ -203,4 +201,3 @@ def check_path(p: Union[Path, str]) -> Path:
     p_create.mkdir(parents=True, exist_ok=True)
 
     return p
-
