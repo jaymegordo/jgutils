@@ -323,6 +323,21 @@ def lower_cols(df: Union[pd.DataFrame, List[str]], title: bool = False) -> Union
     else:
         return df.pipe(lambda df: df.rename(columns=m_cols))
 
+def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
+    """Convert values in cols to snake_case using to_snake
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    cols : List[str]
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    m_cols = {col: lambda df, col=col: df[col].apply(to_snake) for col in f.as_list(cols)}
+    return df.assign(**m_cols)
+
 
 def remove_underscore(df: pd.DataFrame) -> pd.DataFrame:
     """Remove underscores from df columns
