@@ -2,8 +2,14 @@
 Pandas/DataFrame utils
 """
 import re
-from typing import (
-    TYPE_CHECKING, Any, Iterable, List, Tuple, TypeVar, Union, overload)
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Iterable
+from typing import List
+from typing import Tuple
+from typing import TypeVar
+from typing import Union
+from typing import overload
 
 import numpy as np
 import pandas as pd
@@ -316,6 +322,7 @@ def lower_cols(df: Union[pd.DataFrame, List[str]], title: bool = False) -> Union
         return list(m_cols.values())
     else:
         return df.pipe(lambda df: df.rename(columns=m_cols))
+
 
 def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
     """Convert values in cols to snake_case using to_snake

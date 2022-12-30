@@ -3,11 +3,13 @@ General regex string processing functions
 """
 
 import re
-from typing import List, Tuple, Union
+from typing import List
+from typing import Tuple
 
 import pandas as pd
 
-from jgutils import FloatNone, StrNone
+from jgutils import FloatNone
+from jgutils import StrNone
 from jgutils.logger import get_log
 
 log = get_log(__name__)

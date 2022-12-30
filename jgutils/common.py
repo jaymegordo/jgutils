@@ -38,7 +38,6 @@ class DictRepr(object, metaclass=ABCMeta):
             return text[:self.max_key_len] + '...' if len(text) > self.max_key_len else text
         except:
             return text
-        
 
     def __str__(self) -> str:
         """Create string representation of self from dict or list of strings"""
