@@ -14,11 +14,11 @@ from azure.storage.blob import BlobClient  # noqa
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
 
-from jgutils import StrNone
 from jgutils import fileops as fl
 from jgutils import functions as f
 from jgutils.logger import get_log
 from jgutils.secrets import SecretsManager
+from jgutils.typing import StrNone
 
 log = get_log(__name__)
 

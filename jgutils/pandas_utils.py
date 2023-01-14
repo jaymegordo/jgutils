@@ -17,8 +17,8 @@ import pandas as pd
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
 
-from jgutils import Listable
 from jgutils import functions as f
+from jgutils.typing import Listable
 
 TupleType = TypeVar('TupleType', bound=Tuple[str, ...])
 

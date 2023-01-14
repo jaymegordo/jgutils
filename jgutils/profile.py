@@ -23,10 +23,10 @@ from IPython.core.magic import cell_magic
 from IPython.core.magic import magics_class
 from seaborn import diverging_palette
 
-from jgutils import StrNone
 from jgutils import config as cf
 from jgutils import re_utils as ru
 from jgutils.pretty import PrettyDict as PD
+from jgutils.typing import StrNone
 
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler

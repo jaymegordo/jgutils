@@ -8,9 +8,9 @@ from typing import Tuple
 
 import pandas as pd
 
-from jgutils import FloatNone
-from jgutils import StrNone
 from jgutils.logger import get_log
+from jgutils.typing import FloatNone
+from jgutils.typing import StrNone
 
 log = get_log(__name__)
 

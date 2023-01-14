@@ -6,8 +6,8 @@ import sys
 import traceback
 from logging.handlers import RotatingFileHandler
 
-from jgutils import StrNone
 from jgutils.config import IS_REMOTE
+from jgutils.typing import StrNone
 
 try:
     import colored_traceback

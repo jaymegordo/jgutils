@@ -8,8 +8,8 @@ import pandas as pd
 import yaml
 from cryptography.fernet import Fernet
 
-from jgutils import StrNone
 from jgutils.logger import get_log
+from jgutils.typing import StrNone
 
 log = get_log(__name__)
 

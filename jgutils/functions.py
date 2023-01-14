@@ -9,8 +9,8 @@ from typing import Optional
 from typing import TypeVar
 from typing import Union
 
-from jgutils import DictAny
-from jgutils import Listable
+from jgutils.typing import DictAny
+from jgutils.typing import Listable
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 

@@ -4,8 +4,8 @@ from typing import List
 
 from joblib import Parallel
 
-from jgutils import IntNone
 from jgutils.pretty import PrettyString as PS
+from jgutils.typing import IntNone
 
 try:
     from tqdm import tqdm
