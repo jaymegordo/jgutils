@@ -15,3 +15,7 @@ DictAny = Dict[str, Any]
 Listable = Union[T, List[T]]  # either single item or list of items
 PathNone = Optional[Path]
 DtNone = Optional[dt]
+
+DATE_FMT = '%Y-%m-%d'
+DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
+DATETIME_MINS_FMT = '%Y-%m-%d %H:%M'
