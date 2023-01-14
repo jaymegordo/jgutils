@@ -1,10 +1,12 @@
+import re
 from abc import ABCMeta
 from typing import Any
-from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Union
 
 from jgutils.config import IS_REMOTE
+from jgutils.typing import DictAny
 
 
 class PrettyDisplayItem(metaclass=ABCMeta):
@@ -45,14 +47,14 @@ class PrettyDict(PrettyDisplayItem):
 
     def __init__(
             self,
-            m: Union[Dict[str, Any], List[Dict[str, Any]]],
+            m: Union[DictAny, List[DictAny]],
             max_keys: int = 100,
             max_rows: int = 100,
             color: bool = True):
         """
         Parameters
         ----------
-        m : Union[Dict[str, Any], List[Dict[str, Any]]]
+        m : Union[DictAny, List[DictAny]]
             dict or list of dicts to display
         max_keys : int, optional
             max dict keys to display per level, by default 100
@@ -75,12 +77,12 @@ class PrettyDict(PrettyDisplayItem):
     def __str__(self) -> str:
         return self.pretty_print(self.m)
 
-    def pretty_print(self, m: Union[Dict[str, Any], List[Dict[str, Any]]], depth: int = 0) -> str:
+    def pretty_print(self, m: Union[DictAny, List[DictAny]], depth: int = 0) -> str:
         """Recursively pretty print nested dicts with keys colored by depth
 
         Parameters
         ----------
-        m : Union[Dict[str, Any], List[Dict[str, Any]]]
+        m : Union[DictAny, List[DictAny]]
             nested dict or list of dicts to pretty print
         depth : int, optional
             depth of current dict, default 0
@@ -135,10 +137,33 @@ class PrettyDict(PrettyDisplayItem):
 class PrettyString(PrettyDisplayItem):
     """class to print string with ansi escape code colors"""
 
-    def __init__(self, s: Any, color: str = 'green', prehighlight: bool = False):
+    def __init__(
+            self,
+            s: Any,
+            color: str = 'green',
+            prehighlight: bool = False,
+            expr: Optional[Union[str, 're.Pattern[str]']] = None):
+        """
+        Parameters
+        ----------
+        s : Any
+            string to print
+        color : str, optional
+            color to use, default 'green'
+        prehighlight : bool, optional
+            string already contains color codes, just display it, default False
+        expr : Optional[Union[str, re.Pattern[str]]], optional
+            regex expression to highlight specific substrings, default None
+        """
         self.s = s
         self.prehighlight = prehighlight
         self.color = color
+
+        # compile regex expression if passed as string
+        if isinstance(expr, str):
+            expr = re.compile(expr)
+
+        self.expr = expr  # type: Optional[re.Pattern[str]]
 
     def __str__(self):
         if self.prehighlight:
@@ -151,6 +176,10 @@ class PrettyString(PrettyDisplayItem):
 
     def __radd__(self, other):
         return other + str(self)
+
+    def _wrap_highlight(self, s: str) -> str:
+        """Add ansi escape code colors to string"""
+        return f'{self.ansi_codes[self.color]}{s}{self.ansi_codes["reset"]}'
 
     def pretty_print(self, s: str) -> str:
         """Print a string with ansi escape code colors
@@ -170,7 +199,22 @@ class PrettyString(PrettyDisplayItem):
         if IS_REMOTE:
             return str(s)
 
-        return f'{self.ansi_codes[self.color]}{s}{self.ansi_codes["reset"]}'
+        # highlight specific substrings based on regex expression
+        if not self.expr is None:
+            offset = 0
+            for match in self.expr.finditer(s):
+
+                match_str = match.group()
+                if not match_str.strip() == '':
+                    # replace the match with the highlighted version, using the match start and end
+                    color_replace = self._wrap_highlight(match_str)
+                    s = s[:match.start() + offset] + color_replace + s[match.end() + offset:]
+
+                    offset += len(color_replace) - len(match_str)
+
+            return s
+        else:
+            return self._wrap_highlight(s)
 
 
 # aliases for easy access

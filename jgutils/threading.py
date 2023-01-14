@@ -1,0 +1,296 @@
+import threading
+import time
+from queue import Queue
+from threading import Thread
+from typing import Any
+from typing import Callable
+from typing import Iterable
+from typing import List
+from typing import Literal
+from typing import Optional
+from typing import Type
+from typing import Union
+from typing import overload
+
+from joblib import Parallel
+from joblib import delayed
+
+from jgutils import utils as utl
+from jgutils.errors import ExpectedException
+from jgutils.logger import get_log
+from jgutils.typing import DictAny
+from jgutils.typing import IntNone
+from jgutils.typing import Listable
+
+try:
+    from tqdm import tqdm
+except ModuleNotFoundError:
+    pass
+
+
+log = get_log(__name__)
+
+
+class ErrThread(Thread):
+    """Thread to catch and raise errors in the parent thread"""
+
+    def __init__(self, target: Callable, args: List[Any] = [], kwargs: DictAny = {}):
+        self.exc = None
+
+        def new_target():
+            try:
+                target(*args, **kwargs)
+            except Exception as e:
+                self.exc = e
+
+        super().__init__(target=new_target)
+
+    def join(self):
+        threading.Thread.join(self)
+        if self.exc:
+            raise self.exc
+
+
+class ThreadManager():
+
+    def __init__(
+            self,
+            func: Union[Callable[..., Any], str],
+            items: Union[List[DictAny], Iterable[Any]],
+            raise_errors: bool = True,
+            allowed_errors: Optional[Listable[Type[Exception]]] = None,
+            warn_expected: bool = True,
+            dict_args: bool = True,
+            func_kw: Optional[DictAny] = None,
+            use_tqdm: bool = True,
+            n_jobs: int = 50):
+        """Thread manager to manage calling a single function with multiple sets of arguments.
+
+        Parameters
+        ----------
+        func : Union[Callable[..., Any], str]
+            Function to call. If string, will do getattr on items in items.
+        items : Union[List[DictAny], Iterable[Any]]
+            List of arguments to pass to func.
+            If dict_args is True, will assume each item is a dict of arguments to unpack.
+        raise_errors : bool, optional
+            Raise errors, or log.warning and continue, by default True
+        allowed_errors : Optional[Listable[Type[Exception]]], optional
+            List of errors to allow (if raise_errors is True), by default None
+        warn_expected : bool, optional
+            Show warning on expected errors, by default True
+        dict_args : bool, optional
+            If True, unpack items to func, else pass single in items as item to func
+        func_kw : Optional[DictAny], optional
+            Static keyword arguments to pass to func (if str func), by default None
+        use_tqdm : bool, optional
+            Use tqdm to show progress, by default True
+        n_jobs : int, optional
+            Number of threads to use (only works with .run not .start), by default 50
+        """
+
+        self.func = func
+        self.items = items
+        self.threads = []  # type: List[Thread]
+        self.queue = Queue()
+
+        # TODO bit messy for now, combining native thread + Parallel/tqdm in one class
+        self.raise_errors = raise_errors
+        self.allowed_errors = utl.as_list(allowed_errors)
+        self.warn_expected = warn_expected
+        self.allowed_errors.append(ExpectedException)
+
+        self.n_jobs = min(n_jobs, max(len(items), 1))  # 10 jobs, 5 items = 5 jobs
+        self.dict_args = dict_args  # define wether to unpack dict args or not
+        self.func_kw = func_kw or {}
+        self.use_tqdm = use_tqdm
+
+    @overload
+    def start(self, wait: Literal[True] = True, _log=False) -> List[Any]:
+        ...
+
+    @overload
+    def start(self, wait: Literal[False], _log=False) -> 'ThreadManager':
+        ...
+
+    def start(self, wait: bool = True, _log: bool = False) -> Union['ThreadManager', List[Any]]:
+        """Start all threads."""
+
+        for m in self.items:
+            thread = ErrThread(target=lambda q, kw: q.put(self.func(**m)), args=[self.queue, m])
+            self.threads.append(thread)
+            thread.start()
+
+        if wait:
+            start = time.time()
+            res = self.results()
+            end = time.time()
+
+            if _log:
+                log.info(f'Finished {len(self.threads)} threads in {end - start:.2f} seconds')
+
+            return res
+
+        return self
+
+    def start_sequential(self, _log: bool = True) -> List[Any]:
+        """Execute functions sequentially for testing
+
+        Returns
+        -------
+        List[Any]
+            List of results from each thread.
+        """
+        start = time.time()
+        results = [self.func(**m) for m in self.items]
+        end = time.time()
+
+        if _log:
+            log.info(f'Finished {len(results)} functions in {end - start:.2f} seconds')
+
+        return results
+
+    def results(self) -> List[Any]:
+        """Join all threads and get result value from functions
+
+        Returns
+        -------
+        List[Any]
+            List of results from each thread.
+        """
+        results = []
+
+        # wait for all threads to finish
+        for thread in self.threads:
+            thread.join()
+
+        # get results from queue
+        for _ in range(len(self.threads)):
+            results.append(self.queue.get())
+
+        return results
+
+    def err_wrapper(self, func: Callable[..., Any]) -> Callable[..., Any]:
+        """Wrapper to catch errors and log
+        - NOTE only used for Parallel/tqdm implementation for now
+        """
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                err_name = e.__class__.__name__
+
+                if any(isinstance(e, err) for err in self.allowed_errors):
+                    if self.warn_expected:
+                        log.warning(f'[Expected Error: {err_name}] {e}')
+                elif self.raise_errors:
+                    log.warning(f'Failed: "{func.__name__}" with: {args} {kwargs}')
+                    raise e
+                else:
+                    log.warning(f'[{err_name}] Error calling "{func.__name__}": {e}')
+
+        return wrapper
+
+    def run(self, return_none: bool = False) -> List[Any]:
+        """Call with ProgressParallel/tqdm
+
+        Parameters
+        ----------
+        return_none : bool, optional
+            If False, don't return any None values, by default False
+
+        Returns
+        -------
+        List[Any]
+            List of results from each thread.
+        """
+        # NOTE could try getting rid of delayed here and use functools.partial instead
+
+        if isinstance(self.func, str):
+            # assume calling func as method on items in items
+            job = (delayed(self.err_wrapper(getattr(item, self.func)))(**self.func_kw) for item in self.items)
+
+        elif self.dict_args:
+            # unpack dict args to func
+            job = (delayed(self.err_wrapper(self.func))(**item) for item in self.items)
+
+        else:
+            # call func with single item as arg
+            job = (delayed(self.err_wrapper(self.func))(item) for item in self.items)
+
+        res = ProgressParallel(
+            n_jobs=self.n_jobs,
+            verbose=0,
+            backend='threading',
+            items=self.items,
+            use_tqdm=self.use_tqdm)(job)  # type: List[Any]
+
+        # remove any None values
+        if not return_none:
+            res = [r for r in res if not r is None]
+
+        return res
+
+
+class ProgressParallel(Parallel):
+    """Show Parallel task with tqdm progress bar
+
+    NOTE this should be used for local operations only for now
+    """
+
+    def __init__(
+            self,
+            use_tqdm: bool = True,
+            total: IntNone = None,
+            items: Optional[Iterable[Any]] = None,
+            *args, **kwargs):
+
+        self._use_tqdm = use_tqdm
+        self._total = total
+
+        if not items is None:
+            self._total = len(items)
+
+        self.bar_format = '{l_bar}{bar:20}{r_bar}{bar:-20b}'  # limit bar width in terminal
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def thread(cls, *args, **kw):
+        """Convenience method to create threadded parallel object with defaults:
+        - n_jobs = 50 (arbitrary)
+        - backend = 'threading'
+
+        - NOTE not sure if eg 50 threads is necessarily faster or if there is a limit somewhere
+        """
+
+        default_kw = dict(
+            n_jobs=50,
+            backend='threading',
+            verbose=6)
+
+        # update defaults with kw passed in
+        kw = {**default_kw, **kw}
+
+        return cls(*args, **kw)
+
+    def __call__(self, *args, **kwargs):
+        log.info(f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')
+
+        # TODO would be nice to capture tqdm output and only show at bottom of terminal
+
+        with tqdm(
+                disable=not self._use_tqdm,
+                total=self._total,
+                bar_format=self.bar_format) as self._pbar:
+            return Parallel.__call__(self, *args, **kwargs)
+
+    def print_progress(self):
+        if self._total is None:
+            self._pbar.total = self.n_dispatched_tasks
+
+        self._pbar.n = self.n_completed_tasks
+        self._pbar.refresh()
+
+    def _print(self, *args):
+        """Just to suppress joblib.Parallel print output"""
+        pass
