@@ -112,7 +112,7 @@ class CustomLogger(logging.Logger):
         super().__init__(name, *args, **kwargs)
 
         # this prevents duplicate outputs (eg for pytest and on aws lambda)
-        self.propagate = False
+        # self.propagate = False
 
     def error(self, msg: StrNone = None, *args, **kwargs) -> None:
         """Send error to slack channel
