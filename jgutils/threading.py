@@ -16,6 +16,7 @@ from joblib import Parallel
 from joblib import delayed
 
 from jgutils import utils as utl
+from jgutils.config import IS_REMOTE
 from jgutils.errors import ExpectedException
 from jgutils.logger import get_log
 from jgutils.typing import DictAny
@@ -63,7 +64,8 @@ class ThreadManager():
             dict_args: bool = True,
             func_kw: Optional[DictAny] = None,
             use_tqdm: bool = True,
-            n_jobs: int = 50):
+            n_jobs: int = 50,
+            _log: bool = False):
         """Thread manager to manage calling a single function with multiple sets of arguments.
 
         Parameters
@@ -87,12 +89,15 @@ class ThreadManager():
             Use tqdm to show progress, by default True
         n_jobs : int, optional
             Number of threads to use (only works with .run not .start), by default 50
+        _log : bool, optional
+            Show log message, by default False
         """
 
         self.func = func
         self.items = items
         self.threads = []  # type: List[Thread]
         self.queue = Queue()
+        self._log = _log
 
         # TODO bit messy for now, combining native thread + Parallel/tqdm in one class
         self.raise_errors = raise_errors
@@ -103,7 +108,7 @@ class ThreadManager():
         self.n_jobs = min(n_jobs, max(len(items), 1))  # 10 jobs, 5 items = 5 jobs
         self.dict_args = dict_args  # define wether to unpack dict args or not
         self.func_kw = func_kw or {}
-        self.use_tqdm = use_tqdm
+        self.use_tqdm = use_tqdm if not IS_REMOTE and _log else False
 
     @overload
     def start(self, wait: Literal[True] = True, _log=False) -> List[Any]:
@@ -223,7 +228,8 @@ class ThreadManager():
             verbose=0,
             backend='threading',
             items=self.items,
-            use_tqdm=self.use_tqdm)(job)  # type: List[Any]
+            use_tqdm=self.use_tqdm,
+            _log=self._log)(job)  # type: List[Any]
 
         # remove any None values
         if not return_none:
@@ -243,10 +249,12 @@ class ProgressParallel(Parallel):
             use_tqdm: bool = True,
             total: IntNone = None,
             items: Optional[Iterable[Any]] = None,
+            _log: bool = False,
             *args, **kwargs):
 
         self._use_tqdm = use_tqdm
         self._total = total
+        self._log = _log
 
         if not items is None:
             self._total = len(items)
@@ -274,7 +282,8 @@ class ProgressParallel(Parallel):
         return cls(*args, **kw)
 
     def __call__(self, *args, **kwargs):
-        log.info(f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')
+        if self._log:
+            log.info(f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')
 
         # TODO would be nice to capture tqdm output and only show at bottom of terminal
 
