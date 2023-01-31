@@ -112,6 +112,7 @@ class CustomLogger(logging.Logger):
         super().__init__(name, *args, **kwargs)
 
         # this prevents duplicate outputs (eg for pytest and on aws lambda)
+        # NOTE need to propagate for sentry, but don't want for aws
         # self.propagate = False
 
     def error(self, msg: StrNone = None, *args, **kwargs) -> None:
@@ -173,9 +174,8 @@ def get_log(name: str) -> logging.Logger:
     >>> from jambot.logger import get_log
     >>> log = get_log(__name__)
     """
-    # remove __app__ prefix for azure
-    name = name.replace('__app__.', '')
-    name = '.'.join(name.split('.')[1:])
+    if not IS_REMOTE:
+        name = '.'.join(name.split('.')[1:])
 
     # cant set name to nothing or that calls the ROOT logger
     if name == '':
