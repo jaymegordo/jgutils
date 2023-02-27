@@ -3,11 +3,14 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import TypeVar
 from typing import Union
+
+import yaml
 
 from jgutils.typing import DictAny
 from jgutils.typing import Listable
@@ -201,3 +204,36 @@ def check_path(p: Union[Path, str]) -> Path:
     p_create.mkdir(parents=True, exist_ok=True)
 
     return p
+
+
+def load_yaml(p: Path) -> Any:
+    """Load yaml from file
+
+    Parameters
+    ----------
+    p : Path
+        Path to yaml file
+
+    Returns
+    -------
+    Any
+        yaml object
+    """
+    with p.open('r', encoding='utf-8') as file:
+        return yaml.full_load(file)
+
+
+def write_yaml(p: Path, data: Dict):
+    """Write Yaml
+
+    Parameters
+    ----------
+    p : Path
+        Path to write to
+    data : DictAny
+        Data to write
+    """
+    p = check_path(p)
+
+    with p.open('w') as file:
+        yaml.dump(data, file, default_flow_style=False)
