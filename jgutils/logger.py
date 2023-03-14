@@ -171,7 +171,7 @@ def get_log(name: str) -> logging.Logger:
 
     Examples
     --------
-    >>> from jambot.logger import get_log
+    >>> from jgutils.logger import get_log
     >>> log = get_log(__name__)
     """
     if not IS_REMOTE:
