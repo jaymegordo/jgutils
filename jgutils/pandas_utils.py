@@ -292,7 +292,10 @@ def lower_cols(df: List[str]) -> List[str]:
     ...
 
 
-def lower_cols(df: Union[pd.DataFrame, List[str]], title: bool = False) -> Union[pd.DataFrame, List[str]]:
+def lower_cols(
+    df: Union[pd.DataFrame, List[str]],
+    title: bool = False
+) -> Union[pd.DataFrame, List[str]]:
     """Convert df columns to snake case and remove bad characters
 
     Parameters
