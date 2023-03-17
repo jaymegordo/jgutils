@@ -126,6 +126,68 @@ class CustomLogger(logging.Logger):
         super().error(msg, *args, **kwargs)
 
 
+class Loggable():
+    """Mixin class to generate logs if show_log is True"""
+
+    def __init__(self, show_log: bool = True, log_level: int = logging.DEBUG) -> None:
+        """
+        Parameters
+        ----------
+        show_log : bool, optional
+            show log messages, default True
+        log_level : int, optional
+            allow setting more precise log level to show, default logging.DEBUG
+        """
+        self.show_log = show_log
+
+        # get logger
+        self._log = get_log(self.__module__)
+        self._log.level = log_level
+
+    def log(
+            self,
+            msg: str,
+            level: int = logging.INFO,
+            force_show: bool = False,
+            stacklevel: int = 2,
+            end: str = '') -> None:
+        """Logs a message of a certain level
+
+        Parameters
+        ----------
+        msg : str
+            message to log
+        level : int, optional
+            level of message, by default logging.INFO
+        force_show : bool, optional
+            logs the message regardless of show_log, by default False
+        stacklevel : int, optional
+            stack level to log from, by default 2
+        end : str, optional
+            string to end the log, by default ''
+        """
+        if self.show_log or force_show:
+            self._log.log(level, f'{msg}{end}', stacklevel=stacklevel)
+
+    def debug(self, msg: str, **kw) -> None:
+        self.log(msg, logging.DEBUG, stacklevel=3, **kw)
+
+    def info(self, msg: str, **kw) -> None:
+        self.log(msg, logging.INFO, stacklevel=3, **kw)
+
+    def warning(self, msg: str, **kw) -> None:
+        self.log(msg, logging.WARNING, stacklevel=3, **kw)
+
+    def error(self, msg: str, **kw) -> None:
+        self.log(msg, logging.ERROR, stacklevel=3, **kw)
+
+    def critical(self, msg: str, **kw) -> None:
+        self.log(msg, logging.CRITICAL, stacklevel=3, **kw)
+
+    def exception(self, msg: str, **kw) -> None:
+        self.log(msg, logging.ERROR, stacklevel=3, **kw)
+
+
 # TODO move this messy code into CustomLogger
 if not IS_REMOTE:
     # local, use colored formatter
