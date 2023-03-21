@@ -76,27 +76,3 @@ class DictRepr(object, metaclass=ABCMeta):
 
     def get(self, key: str, default: Any = None) -> Any:
         return self.to_dict().get(key, default)
-
-
-class ProgressParallel(Parallel):
-    """Modified from https://stackoverflow.com/a/61900501/6278428"""
-
-    def __init__(self, use_tqdm: bool = True, total: IntNone = None, *args, **kwargs):
-        self._use_tqdm = use_tqdm
-        self._total = total
-        self.bar_format = '{l_bar}{bar:20}{r_bar}{bar:-20b}'  # limit bar width in terminal
-        super().__init__(*args, **kwargs)
-
-    def __call__(self, *args, **kwargs):
-        with tqdm(
-                disable=not self._use_tqdm,
-                total=self._total,
-                bar_format=self.bar_format) as self._pbar:
-            return Parallel.__call__(self, *args, **kwargs)
-
-    def print_progress(self):
-        if self._total is None:
-            self._pbar.total = self.n_dispatched_tasks
-
-        self._pbar.n = self.n_completed_tasks
-        self._pbar.refresh()

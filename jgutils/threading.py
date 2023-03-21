@@ -1,3 +1,4 @@
+import multiprocessing
 import threading
 import time
 from queue import Queue
@@ -15,13 +16,14 @@ from typing import overload
 from joblib import Parallel
 from joblib import delayed
 
+from jgutils import config as cf
 from jgutils import utils as utl
-from jgutils.config import IS_REMOTE
 from jgutils.errors import ExpectedException
 from jgutils.logger import get_log
 from jgutils.typing import DictAny
 from jgutils.typing import IntNone
 from jgutils.typing import Listable
+from jgutils.typing import StrNone
 
 try:
     from tqdm import tqdm
@@ -64,7 +66,8 @@ class ThreadManager():
             dict_args: bool = True,
             func_kw: Optional[DictAny] = None,
             use_tqdm: bool = True,
-            n_jobs: int = 50,
+            n_jobs: int = 20,
+            backend: StrNone = 'threading',
             _log: bool = False):
         """Thread manager to manage calling a single function with multiple sets of arguments.
 
@@ -89,6 +92,8 @@ class ThreadManager():
             Use tqdm to show progress, by default True
         n_jobs : int, optional
             Number of threads to use (only works with .run not .start), by default 50
+        backend : StrNone, optional
+            Backend to use for joblib, by default 'threading' - pass None to use default
         _log : bool, optional
             Show log message, by default False
         """
@@ -105,10 +110,17 @@ class ThreadManager():
         self.warn_expected = warn_expected
         self.allowed_errors.append(ExpectedException)
 
-        self.n_jobs = min(n_jobs, max(len(items), 1))  # 10 jobs, 5 items = 5 jobs
+        self.backend = backend
+
+        if self.backend == 'threading':
+            self.n_jobs = min(n_jobs, max(len(items), 1))  # 10 jobs, 5 items = 5 jobs
+        else:
+            # process based, so use all available
+            self.n_jobs = n_jobs = min(multiprocessing.cpu_count(), len(items))
+
         self.dict_args = dict_args  # define wether to unpack dict args or not
         self.func_kw = func_kw or {}
-        self.use_tqdm = use_tqdm if not IS_REMOTE and _log else False
+        self.use_tqdm = use_tqdm if not cf.IS_REMOTE and _log else False
 
     @overload
     def start(self, wait: Literal[True] = True, _log=False) -> List[Any]:
@@ -226,7 +238,7 @@ class ThreadManager():
         res = ProgressParallel(
             n_jobs=self.n_jobs,
             verbose=0,
-            backend='threading',
+            backend=self.backend,
             items=self.items,
             use_tqdm=self.use_tqdm,
             _log=self._log)(job)  # type: List[Any]
@@ -252,7 +264,7 @@ class ProgressParallel(Parallel):
             _log: bool = False,
             *args, **kwargs):
 
-        self._use_tqdm = use_tqdm
+        self._use_tqdm = use_tqdm if not cf.SYS_FROZEN else False
         self._total = total
         self._log = _log
 
@@ -260,6 +272,10 @@ class ProgressParallel(Parallel):
             self._total = len(items)
 
         self.bar_format = '{l_bar}{bar:20}{r_bar}{bar:-20b}'  # limit bar width in terminal
+
+        if cf.SYS_FROZEN:
+            kwargs['verbose'] = 0  # disable verbose output when frozen
+
         super().__init__(*args, **kwargs)
 
     @classmethod
