@@ -1,10 +1,7 @@
 
 from pathlib import Path
 from typing import Any
-
 from typing import Iterable
-
-
 from typing import Union
 from typing import overload
 
