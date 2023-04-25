@@ -24,9 +24,9 @@ repos:
         name: sort_imports # sort imports at top of python file
   - repo: local
     hooks: 
-      - id: flake8
-        name: flake8
-        entry: poetry run flake8
+      - id: ruff
+        name: ruff
+        entry: poetry run ruff check
         language: system
         types: [python]
     #   - id: pytest

@@ -8,7 +8,7 @@ https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/storage/azure-storag
 import logging
 import re
 from pathlib import Path
-from typing import *
+from typing import Union
 
 from azure.storage.blob import BlobClient  # noqa
 from azure.storage.blob import BlobServiceClient
@@ -245,7 +245,7 @@ class BlobStorage():
         names = [c.name for c in self.client.list_containers()]
         f.pretty_dict(names)
 
-    def list_files(self, container: StrNone = None, match: str = '.') -> List[str]:
+    def list_files(self, container: StrNone = None, match: str = '.') -> list[str]:
         """Get list of files in container
 
         Parameters
@@ -257,7 +257,7 @@ class BlobStorage():
 
         Returns
         -------
-        List[str]
+        list[str]
             list of files in container
         """
         _container = self.get_container(container)

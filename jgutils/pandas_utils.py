@@ -5,8 +5,8 @@ import re
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Iterable
-from typing import List
-from typing import Tuple
+
+
 from typing import TypeVar
 from typing import Union
 from typing import overload
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 from jgutils import functions as f
 from jgutils.typing import Listable
 
-TupleType = TypeVar('TupleType', bound=Tuple[str, ...])
+TupleType = TypeVar('TupleType', bound=tuple[str, ...])
 
 
 def filter_df(dfall, symbol):
@@ -114,13 +114,13 @@ def safe_drop(
     return df.drop(columns=cols)
 
 
-def safe_select(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
+def safe_select(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     """Select df cols if they exist
 
     Parameters
     ----------
     df : pd.DataFrame
-    cols : List[str]
+    cols : list[str]
 
     Returns
     -------
@@ -131,7 +131,7 @@ def safe_select(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     return df[cols]
 
 
-def all_except(df: pd.DataFrame, exclude: Iterable[str]) -> List[str]:
+def all_except(df: pd.DataFrame, exclude: Iterable[str]) -> list[str]:
     """Return all cols in df except exclude
 
     Parameters
@@ -142,7 +142,7 @@ def all_except(df: pd.DataFrame, exclude: Iterable[str]) -> List[str]:
 
     Returns
     -------
-    List[str]
+    list[str]
         list of all cols in df except exclude
     """
     return [col for col in df.columns if not any(col in lst for lst in exclude)]
@@ -209,13 +209,13 @@ def left_merge(df: pd.DataFrame, df_right: pd.DataFrame) -> pd.DataFrame:
             right_index=True)
 
 
-def convert_dtypes(df: pd.DataFrame, cols: List[str], dtype: Union[str, type]) -> pd.DataFrame:
+def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: Union[str, type]) -> pd.DataFrame:
     """Safe convert cols to dtype
 
     Parameters
     ----------
     df : pd.DataFrame
-    cols : List[str]
+    cols : list[str]
     _type : Union[str, type]
         dtype to convert to
 
@@ -288,14 +288,14 @@ def lower_cols(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @overload
-def lower_cols(df: List[str]) -> List[str]:
+def lower_cols(df: list[str]) -> list[str]:
     ...
 
 
 def lower_cols(
-    df: Union[pd.DataFrame, List[str]],
+    df: Union[pd.DataFrame, list[str]],
     title: bool = False
-) -> Union[pd.DataFrame, List[str]]:
+) -> Union[pd.DataFrame, list[str]]:
     """Convert df columns to snake case and remove bad characters
 
     Parameters
@@ -333,7 +333,7 @@ def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
     Parameters
     ----------
     df : pd.DataFrame
-    cols : List[str]
+    cols : list[str]
 
     Returns
     -------
@@ -357,7 +357,7 @@ def remove_underscore(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(columns={c: c.replace('_', ' ') for c in df.columns})
 
 
-def parse_datecols(df: pd.DataFrame, include_cols: Union[List[str], None] = None) -> pd.DataFrame:
+def parse_datecols(df: pd.DataFrame, include_cols: Union[list[str], None] = None) -> pd.DataFrame:
     """Convert any columns with 'date' or 'time' in header name to datetime"""
     if include_cols is None:
         include_cols = []
@@ -365,7 +365,7 @@ def parse_datecols(df: pd.DataFrame, include_cols: Union[List[str], None] = None
     date_cols = ['date', 'time'] + include_cols
 
     datecols = list(filter(lambda x: any(s in x.lower()
-                    for s in date_cols), df.columns))  # type: List[str]
+                    for s in date_cols), df.columns))  # type: list[str]
 
     m = {col: lambda df, col=col: pd.to_datetime(
         arg=df[col],
@@ -375,13 +375,13 @@ def parse_datecols(df: pd.DataFrame, include_cols: Union[List[str], None] = None
     return df.assign(**m)
 
 
-def reorder_cols(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
+def reorder_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     """Reorder df cols with cols first, then remainder
 
     Parameters
     ----------
     df : pd.DataFrame
-    cols : List[str]
+    cols : list[str]
         cols to sort first
 
     Returns
@@ -480,7 +480,7 @@ def minmax_scale(s: pd.Series, feature_range=(0, 1)) -> np.ndarray:
     return np.interp(s, (s.min(), s.max()), feature_range)
 
 
-def split(df: pd.DataFrame, target: Union[List[str], str] = 'target') -> Tuple[pd.DataFrame, pd.Series]:
+def split(df: pd.DataFrame, target: Union[list[str], str] = 'target') -> tuple[pd.DataFrame, pd.Series]:
     """Split off target col to make X and y"""
     if isinstance(target, list) and len(target) == 1:
         target = target[0]
@@ -488,7 +488,7 @@ def split(df: pd.DataFrame, target: Union[List[str], str] = 'target') -> Tuple[p
     return df.pipe(safe_drop, cols=target), df[target]
 
 
-def xs(df: pd.DataFrame, idx_key: Tuple[Any]) -> pd.DataFrame:
+def xs(df: pd.DataFrame, idx_key: tuple[Any]) -> pd.DataFrame:
     """Cross section of df"""
     return df.xs(idx_key, drop_level=False)  # type: ignore
 
@@ -509,7 +509,7 @@ def index_date_from_int(df: pd.DataFrame, ts_col: str = 'timestamp') -> pd.DataF
         .set_index(idx_names)
 
 
-def get_unique_index(df: pd.DataFrame, cols: TupleType) -> List[TupleType]:
+def get_unique_index(df: pd.DataFrame, cols: TupleType) -> list[TupleType]:
     """Get list of unique index values for given cols
 
     Parameters
@@ -520,7 +520,7 @@ def get_unique_index(df: pd.DataFrame, cols: TupleType) -> List[TupleType]:
 
     Returns
     -------
-    List[TupleType]
+    list[TupleType]
     """
     exclude = tuple([col for col in df.index.names if not col in cols])
     return df.index.droplevel(exclude).unique().tolist()

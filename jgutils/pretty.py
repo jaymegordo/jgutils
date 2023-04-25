@@ -1,7 +1,7 @@
 import re
 from abc import ABCMeta
 from typing import Any
-from typing import List
+
 from typing import Optional
 from typing import Union
 
@@ -47,14 +47,14 @@ class PrettyDict(PrettyDisplayItem):
 
     def __init__(
             self,
-            m: Union[DictAny, List[DictAny]],
+            m: Union[DictAny, list[DictAny]],
             max_keys: int = 100,
             max_rows: int = 100,
             color: bool = True):
         """
         Parameters
         ----------
-        m : Union[DictAny, List[DictAny]]
+        m : Union[DictAny, list[DictAny]]
             dict or list of dicts to display
         max_keys : int, optional
             max dict keys to display per level, by default 100
@@ -77,12 +77,12 @@ class PrettyDict(PrettyDisplayItem):
     def __str__(self) -> str:
         return self.pretty_print(self.m)
 
-    def pretty_print(self, m: Union[DictAny, List[DictAny]], depth: int = 0) -> str:
+    def pretty_print(self, m: Union[DictAny, list[DictAny]], depth: int = 0) -> str:
         """Recursively pretty print nested dicts with keys colored by depth
 
         Parameters
         ----------
-        m : Union[DictAny, List[DictAny]]
+        m : Union[DictAny, list[DictAny]]
             nested dict or list of dicts to pretty print
         depth : int, optional
             depth of current dict, default 0

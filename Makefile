@@ -7,14 +7,14 @@ init:  # install with optional deps locally
 	@poetry install -E terminaldf -E colorlogging -E azurestorage
 
 .PHONY : format
-format:  ## autopep, isort, flake
+format:  ## autopep, isort, ruff
 	@poetry run autopep8 --recursive --in-place $(code)
 	@poetry run isort $(code)
-	@poetry run flake8 $(code)
+	@poetry run ruff check $(code)
 
-.PHONY : flake
-flake:  ## run flake with only selected dirs
-	@poetry run flake8 $(code)
+.PHONY : lint
+lint:  ## ruff linting
+	@poetry run ruff check $(code)
 
 .PHONY : publish
 publish:  ## publish to pypi - NOTE doesnt work, cant have git deps (eg pygments)

@@ -1,21 +1,12 @@
 from abc import ABCMeta
 from typing import Any
-from typing import List
-
-from joblib import Parallel
 
 from jgutils.pretty import PrettyString as PS
-from jgutils.typing import IntNone
-
-try:
-    from tqdm import tqdm
-except ModuleNotFoundError:
-    pass
 
 
 class DictRepr(object, metaclass=ABCMeta):
     """Class to add better string rep with to_dict"""
-    display_keys = []  # type: List[str]
+    display_keys = []  # type: list[str]
     max_key_len = 40
 
     def to_dict_str(self):
@@ -64,7 +55,7 @@ class DictRepr(object, metaclass=ABCMeta):
     def __repr__(self) -> str:
         return str(self)
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         return list(self.to_dict().keys())
 
     def __getitem__(self, key: str) -> Any:

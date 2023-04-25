@@ -6,7 +6,7 @@ from threading import Thread
 from typing import Any
 from typing import Callable
 from typing import Iterable
-from typing import List
+
 from typing import Literal
 from typing import Optional
 from typing import Type
@@ -37,7 +37,7 @@ log = get_log(__name__)
 class ErrThread(Thread):
     """Thread to catch and raise errors in the parent thread"""
 
-    def __init__(self, target: Callable, args: List[Any] = [], kwargs: DictAny = {}):
+    def __init__(self, target: Callable, args: list[Any] = [], kwargs: DictAny = {}):
         self.exc = None
 
         def new_target():
@@ -59,7 +59,7 @@ class ThreadManager():
     def __init__(
             self,
             func: Union[Callable[..., Any], str],
-            items: Union[List[DictAny], Iterable[Any]],
+            items: Union[list[DictAny], Iterable[Any]],
             raise_errors: bool = True,
             allowed_errors: Optional[Listable[Type[Exception]]] = None,
             warn_expected: bool = True,
@@ -75,7 +75,7 @@ class ThreadManager():
         ----------
         func : Union[Callable[..., Any], str]
             Function to call. If string, will do getattr on items in items.
-        items : Union[List[DictAny], Iterable[Any]]
+        items : Union[list[DictAny], Iterable[Any]]
             List of arguments to pass to func.
             If dict_args is True, will assume each item is a dict of arguments to unpack.
         raise_errors : bool, optional
@@ -100,7 +100,7 @@ class ThreadManager():
 
         self.func = func
         self.items = items
-        self.threads = []  # type: List[Thread]
+        self.threads = []  # type: list[Thread]
         self.queue = Queue()
         self._log = _log
 
@@ -123,14 +123,14 @@ class ThreadManager():
         self.use_tqdm = use_tqdm if not cf.IS_REMOTE and _log else False
 
     @overload
-    def start(self, wait: Literal[True] = True, _log=False) -> List[Any]:
+    def start(self, wait: Literal[True] = True, _log=False) -> list[Any]:
         ...
 
     @overload
     def start(self, wait: Literal[False], _log=False) -> 'ThreadManager':
         ...
 
-    def start(self, wait: bool = True, _log: bool = False) -> Union['ThreadManager', List[Any]]:
+    def start(self, wait: bool = True, _log: bool = False) -> Union['ThreadManager', list[Any]]:
         """Start all threads."""
 
         for m in self.items:
@@ -150,12 +150,12 @@ class ThreadManager():
 
         return self
 
-    def start_sequential(self, _log: bool = True) -> List[Any]:
+    def start_sequential(self, _log: bool = True) -> list[Any]:
         """Execute functions sequentially for testing
 
         Returns
         -------
-        List[Any]
+        list[Any]
             List of results from each thread.
         """
         start = time.time()
@@ -167,12 +167,12 @@ class ThreadManager():
 
         return results
 
-    def results(self) -> List[Any]:
+    def results(self) -> list[Any]:
         """Join all threads and get result value from functions
 
         Returns
         -------
-        List[Any]
+        list[Any]
             List of results from each thread.
         """
         results = []
@@ -208,7 +208,7 @@ class ThreadManager():
 
         return wrapper
 
-    def run(self, return_none: bool = False) -> List[Any]:
+    def run(self, return_none: bool = False) -> list[Any]:
         """Call with ProgressParallel/tqdm
 
         Parameters
@@ -218,7 +218,7 @@ class ThreadManager():
 
         Returns
         -------
-        List[Any]
+        list[Any]
             List of results from each thread.
         """
         # NOTE could try getting rid of delayed here and use functools.partial instead
@@ -241,7 +241,7 @@ class ThreadManager():
             backend=self.backend,
             items=self.items,
             use_tqdm=self.use_tqdm,
-            _log=self._log)(job)  # type: List[Any]
+            _log=self._log)(job)  # type: list[Any]
 
         # remove any None values
         if not return_none:

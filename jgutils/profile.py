@@ -14,7 +14,7 @@ Examples
 import profile
 import pstats
 from typing import TYPE_CHECKING
-from typing import List
+
 from typing import Union
 
 import pandas as pd
@@ -41,7 +41,7 @@ def format_cell(bg, t='inherit'):
 
 def bg(
         style: 'Styler',
-        subset: Union[List[str], None] = None,
+        subset: Union[list[str], None] = None,
         higher_better: bool = True,
         axis: int = 0) -> 'Styler':
     """Show style with highlights per column"""

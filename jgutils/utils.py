@@ -1,10 +1,10 @@
 
 from pathlib import Path
 from typing import Any
-from typing import Dict
+
 from typing import Iterable
-from typing import List
-from typing import Tuple
+
+
 from typing import Union
 from typing import overload
 
@@ -40,12 +40,12 @@ def check_path(p: Union[Path, str], force_file: bool = False) -> Path:
     return p
 
 
-def flatten_list_list(lst: List[List[T]]) -> List[T]:
+def flatten_list_list(lst: list[list[T]]) -> list[T]:
     """Flatten single level nested list of lists
 
     Parameters
     ----------
-    lst : List[list]
+    lst : list[list]
 
     Returns
     -------
@@ -56,39 +56,39 @@ def flatten_list_list(lst: List[List[T]]) -> List[T]:
 
 
 @overload
-def as_list(items: Listable[T]) -> List[T]:
+def as_list(items: Listable[T]) -> list[T]:
     ...
 
 
 @overload
-def as_list(items: Dict[Any, Any]) -> List[Tuple[Any, Any]]:
+def as_list(items: dict[Any, Any]) -> list[tuple[Any, Any]]:
     ...
 
 
 @overload
-def as_list(items: str) -> List[str]:
+def as_list(items: str) -> list[str]:
     ...
 
 
 @overload
-def as_list(items: None) -> List[Any]:
+def as_list(items: None) -> list[Any]:
     ...
 
 
 def as_list(
-        items: Union[Listable[T], Dict[Any, Any], str, None]
-) -> Union[List[T], List[Tuple[Any, Any]], List[str], List[Any]]:
+        items: Union[Listable[T], dict[Any, Any], str, None]
+) -> Union[list[T], list[tuple[Any, Any]], list[str], list[Any]]:
     """Convert single item or iterable of items to list
     - if items is None, return empty list
 
     Parameters
     ----------
-    items : Union[Listable[T], Dict[Any, Any], str, None]
+    items : Union[Listable[T], dict[Any, Any], str, None]
         item, iterable of items, single str, dict, or None
 
     Returns
     -------
-    Union[List[T], List[Tuple[Any, Any]], List[str], List[Any]]
+    Union[list[T], list[tuple[Any, Any]], list[str], list[Any]]
         list of items
 
     Examples

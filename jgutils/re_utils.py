@@ -3,8 +3,8 @@ General regex string processing functions
 """
 
 import re
-from typing import List
-from typing import Tuple
+
+
 
 import pandas as pd
 
@@ -175,7 +175,7 @@ def parse_string(s: str) -> StrNone:
     return s if all([pd.isnull(func(s)) for func in exclude_funcs]) and len(s) > 0 else None
 
 
-def sub_multi(text: str, sub_vals: List[Tuple[str, str]]) -> str:
+def sub_multi(text: str, sub_vals: list[tuple[str, str]]) -> str:
     """
     Convenience func to perform multiple regex substitutions
 
@@ -183,7 +183,7 @@ def sub_multi(text: str, sub_vals: List[Tuple[str, str]]) -> str:
     ----------
     text : str
         text to perform substitutions on
-    sub_vals : List[Tuple[str, str]]
+    sub_vals : list[tuple[str, str]]
         list of tuples of (expr, replacement)
 
     Returns

@@ -3,9 +3,9 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
-from typing import Dict
+
 from typing import Iterable
-from typing import List
+
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -20,7 +20,7 @@ SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 T = TypeVar('T')
 
 
-def as_list(items: Optional[Listable[T]]) -> List[T]:
+def as_list(items: Optional[Listable[T]]) -> list[T]:
     """Convert single item or list/tuple of items to list
     - if items is None, return empty list
 
@@ -30,7 +30,7 @@ def as_list(items: Optional[Listable[T]]) -> List[T]:
 
     Returns
     -------
-    List[T]
+    list[T]
     """
     if items is None:
         return []
@@ -223,7 +223,7 @@ def load_yaml(p: Path) -> Any:
         return yaml.full_load(file)
 
 
-def write_yaml(p: Path, data: Dict):
+def write_yaml(p: Path, data: dict):
     """Write Yaml
 
     Parameters
