@@ -18,7 +18,7 @@ repos:
   #       name: pydocstyle
   #       args: ["--ignore=D100,D400"]
   - repo : https://github.com/PyCQA/isort
-    rev: '5.8.0'
+    rev: '5.12.0'
     hooks:
       - id: isort
         name: sort_imports # sort imports at top of python file
