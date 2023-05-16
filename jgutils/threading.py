@@ -61,7 +61,7 @@ class ThreadManager():
             func: Union[Callable[..., Any], str],
             items: Union[list[DictAny], Iterable[Any]],
             raise_errors: bool = True,
-            allowed_errors: Optional[Listable[Type[Exception]]] = None,
+            allowed_errors: Optional[Listable[type[Exception]]] = None,
             warn_expected: bool = True,
             dict_args: bool = True,
             func_kw: Optional[DictAny] = None,
@@ -80,7 +80,7 @@ class ThreadManager():
             If dict_args is True, will assume each item is a dict of arguments to unpack.
         raise_errors : bool, optional
             Raise errors, or log.warning and continue, by default True
-        allowed_errors : Optional[Listable[Type[Exception]]], optional
+        allowed_errors : Optional[Listable[type[Exception]]], optional
             List of errors to allow (if raise_errors is True), by default None
         warn_expected : bool, optional
             Show warning on expected errors, by default True
