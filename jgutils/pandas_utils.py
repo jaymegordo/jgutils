@@ -5,8 +5,6 @@ import re
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Iterable
-
-
 from typing import TypeVar
 from typing import Union
 from typing import overload

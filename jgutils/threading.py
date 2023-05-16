@@ -6,7 +6,6 @@ from threading import Thread
 from typing import Any
 from typing import Callable
 from typing import Iterable
-
 from typing import Literal
 from typing import Optional
 from typing import Type
@@ -113,7 +112,8 @@ class ThreadManager():
         self.backend = backend
 
         if self.backend == 'threading':
-            self.n_jobs = min(n_jobs, max(len(items), 1))  # 10 jobs, 5 items = 5 jobs
+            # 10 jobs, 5 items = 5 jobs
+            self.n_jobs = min(n_jobs, max(len(items), 1))
         else:
             # process based, so use all available
             self.n_jobs = n_jobs = min(multiprocessing.cpu_count(), len(items))
@@ -134,7 +134,8 @@ class ThreadManager():
         """Start all threads."""
 
         for m in self.items:
-            thread = ErrThread(target=lambda q, kw: q.put(self.func(**m)), args=[self.queue, m])
+            thread = ErrThread(target=lambda q, kw: q.put(
+                self.func(**m)), args=[self.queue, m])
             self.threads.append(thread)
             thread.start()
 
@@ -144,7 +145,8 @@ class ThreadManager():
             end = time.time()
 
             if _log:
-                log.info(f'Finished {len(self.threads)} threads in {end - start:.2f} seconds')
+                log.info(
+                    f'Finished {len(self.threads)} threads in {end - start:.2f} seconds')
 
             return res
 
@@ -163,7 +165,8 @@ class ThreadManager():
         end = time.time()
 
         if _log:
-            log.info(f'Finished {len(results)} functions in {end - start:.2f} seconds')
+            log.info(
+                f'Finished {len(results)} functions in {end - start:.2f} seconds')
 
         return results
 
@@ -201,10 +204,12 @@ class ThreadManager():
                     if self.warn_expected:
                         log.warning(f'[Expected Error: {err_name}] {e}')
                 elif self.raise_errors:
-                    log.warning(f'Failed: "{func.__name__}" with: {args} {kwargs}')
+                    log.warning(
+                        f'Failed: "{func.__name__}" with: {args} {kwargs}')
                     raise e
                 else:
-                    log.warning(f'[{err_name}] Error calling "{func.__name__}": {e}')
+                    log.warning(
+                        f'[{err_name}] Error calling "{func.__name__}": {e}')
 
         return wrapper
 
@@ -225,15 +230,18 @@ class ThreadManager():
 
         if isinstance(self.func, str):
             # assume calling func as method on items in items
-            job = (delayed(self.err_wrapper(getattr(item, self.func)))(**self.func_kw) for item in self.items)
+            job = (delayed(self.err_wrapper(getattr(item, self.func)))
+                   (**self.func_kw) for item in self.items)
 
         elif self.dict_args:
             # unpack dict args to func
-            job = (delayed(self.err_wrapper(self.func))(**item) for item in self.items)
+            job = (delayed(self.err_wrapper(self.func))(**item)
+                   for item in self.items)
 
         else:
             # call func with single item as arg
-            job = (delayed(self.err_wrapper(self.func))(item) for item in self.items)
+            job = (delayed(self.err_wrapper(self.func))(item)
+                   for item in self.items)
 
         res = ProgressParallel(
             n_jobs=self.n_jobs,
@@ -271,7 +279,8 @@ class ProgressParallel(Parallel):
         if not items is None:
             self._total = len(items)
 
-        self.bar_format = '{l_bar}{bar:20}{r_bar}{bar:-20b}'  # limit bar width in terminal
+        # limit bar width in terminal
+        self.bar_format = '{l_bar}{bar:20}{r_bar}{bar:-20b}'
 
         if cf.SYS_FROZEN:
             kwargs['verbose'] = 0  # disable verbose output when frozen
@@ -299,7 +308,8 @@ class ProgressParallel(Parallel):
 
     def __call__(self, *args, **kwargs):
         if self._log:
-            log.info(f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')
+            log.info(
+                f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')
 
         # TODO would be nice to capture tqdm output and only show at bottom of terminal
 

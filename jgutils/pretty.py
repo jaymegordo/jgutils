@@ -1,7 +1,6 @@
 import re
 from abc import ABCMeta
 from typing import Any
-
 from typing import Optional
 from typing import Union
 

@@ -14,7 +14,6 @@ Examples
 import profile
 import pstats
 from typing import TYPE_CHECKING
-
 from typing import Union
 
 import pandas as pd

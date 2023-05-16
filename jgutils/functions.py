@@ -3,9 +3,7 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
-
 from typing import Iterable
-
 from typing import Optional
 from typing import TypeVar
 from typing import Union

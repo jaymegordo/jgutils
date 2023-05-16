@@ -4,8 +4,6 @@ General regex string processing functions
 
 import re
 
-
-
 import pandas as pd
 
 from jgutils.logger import get_log
