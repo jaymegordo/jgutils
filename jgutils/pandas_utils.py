@@ -548,3 +548,25 @@ def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') ->
     pd.DataFrame
     """
     return df.pipe(lambda df: df.fillna({c: fill_val for c in df.select_dtypes(dtype).columns}))
+
+def select_by_multiindex(
+        df: pd.DataFrame,
+        keys: Listable[tuple[str, str]],
+        names: list[str]) -> pd.DataFrame:
+    """Select df by multiindex keys
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+    keys : Listable[tuple[str, str]]
+        list of (level, key) tuples
+    names : list[str]
+        list of level names
+
+    Returns
+    -------
+    pd.DataFrame
+    """
+    key_index = pd.MultiIndex.from_tuples(list(keys), names=names)
+
+    return df[df.index.isin(key_index)]
