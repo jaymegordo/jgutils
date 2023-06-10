@@ -181,6 +181,10 @@ class Loggable():
     def error(self, msg: str, **kw) -> None:
         self.log(msg, logging.ERROR, stacklevel=3, **kw)
 
+    def err(self, msg: str, **kw) -> None:
+        """Convenience if base class (eg argparse) has error method already"""
+        self.log(msg, logging.ERROR, stacklevel=3, **kw)
+
     def critical(self, msg: str, **kw) -> None:
         self.log(msg, logging.CRITICAL, stacklevel=3, **kw)
 
