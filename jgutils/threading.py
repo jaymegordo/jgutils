@@ -8,7 +8,6 @@ from typing import Callable
 from typing import Iterable
 from typing import Literal
 from typing import Optional
-from typing import Type
 from typing import Union
 from typing import overload
 
