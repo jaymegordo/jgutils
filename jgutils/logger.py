@@ -74,8 +74,11 @@ class ColoredFormatter(Formatter):
     def formatException(self, ei) -> str:
         sio = io.StringIO()
 
-        tb_colored = self.colorize_traceback(*ei)
-        print(tb_colored, file=sio)
+        try:
+            tb_colored = self.colorize_traceback(*ei)
+            print(tb_colored, file=sio)
+        except TypeError:
+            return super().formatException(ei)
 
         s = sio.getvalue()
         sio.close()
