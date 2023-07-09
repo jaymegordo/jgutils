@@ -204,7 +204,7 @@ class ThreadManager():
                         log.warning(f'[Expected Error: {err_name}] {e}')
                 elif self.raise_errors:
                     log.warning(
-                        f'Failed: "{func.__name__}" with: {args} {kwargs}')
+                        f'Failed: "{func.__name__}" with: args={args} kw={kwargs}')
                     raise e
                 else:
                     log.warning(
