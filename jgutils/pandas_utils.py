@@ -2,6 +2,7 @@
 Pandas/DataFrame utils
 """
 import re
+from datetime import datetime as dt
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Iterable
@@ -12,11 +13,15 @@ from typing import overload
 import numpy as np
 import pandas as pd
 
+from jgutils import functions as f
+from jgutils import utils as utl
+from jgutils.logger import get_log
+from jgutils.typing import Listable
+
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
 
-from jgutils import functions as f
-from jgutils.typing import Listable
+log = get_log(__name__)
 
 TupleType = TypeVar('TupleType', bound=tuple[str, ...])
 
@@ -568,3 +573,61 @@ def select_by_multiindex(
     key_index = pd.MultiIndex.from_tuples(list(keys), names=names)
 
     return df[df.index.isin(key_index)]
+
+
+def expand_period_index(
+        df: pd.DataFrame,
+        freq: str = 'M',
+        d_rng: tuple[dt, dt] | None = None,
+        group_col: str | None = None) -> pd.DataFrame:
+    """Expand/fill PeriodIndex to include missing periods
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe with period index (must be set as actual index)
+    freq : str, optional
+        'Y', 'M' or 'W', default 'M'
+    d_rng : tuple[dt, dt], optional
+        date range to expand to, default None
+    group_col : StrNone, optional
+        group column to expand to, default None
+
+    Returns
+    -------
+    pd.DataFrame
+        df with missing periods filled
+    """
+    s = df.index
+    idx_name = s.name
+
+    if d_rng is None:
+        # expand to min and max existing dates
+
+        try:
+            d_rng = (s.min().to_timestamp(), s.max().to_timestamp())
+        except:
+            log.warning('No rows in period index to expand.')
+            return df
+
+    # NOTE last date needs to be final date of period
+    d_rng = (
+        d_rng[0],
+        utl.last_day_of_period(d_rng[1], freq)
+    )
+
+    # create index from overall min/max dates in df
+    idx = pd.date_range(d_rng[0], d_rng[1], freq=freq).to_period()
+
+    # create index with missing periods per period/group (eg Unit)
+    if not group_col is None:
+        idx_name = [group_col, idx_name]
+        idx = pd.MultiIndex.from_product(
+            [df[group_col].unique(), idx], names=idx_name)
+
+        df = df.reset_index(drop=False) \
+            .set_index(idx_name)
+
+    return df \
+        .merge(pd.DataFrame(index=idx), how='right', left_index=True, right_index=True) \
+        .rename_axis(idx_name)

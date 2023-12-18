@@ -1,12 +1,20 @@
 
+import warnings
+from datetime import datetime as dt
 from pathlib import Path
 from typing import Any
 from typing import Iterable
 from typing import Union
 from typing import overload
 
+import pandas as pd
+
 from jgutils.typing import Listable
 from jgutils.typing import T
+
+#  from pandas.to_datetime
+warnings.filterwarnings(
+    'ignore', message='Discarding nonzero nanoseconds in conversion.')
 
 
 def check_path(p: Union[Path, str], force_file: bool = False) -> Path:
@@ -29,7 +37,8 @@ def check_path(p: Union[Path, str], force_file: bool = False) -> Path:
     if p.exists():
         return p
 
-    p_create = p if (p.is_dir() or not '.' in p.name) and not force_file else p.parent
+    p_create = p if (
+        p.is_dir() or not '.' in p.name) and not force_file else p.parent
 
     # if file, create parent dir, else create dir
     p_create.mkdir(parents=True, exist_ok=True)
@@ -109,3 +118,30 @@ def as_list(
         return list(items)
     else:
         return [items]
+
+
+def last_day_of_period(date: dt, freq: str) -> dt:
+    """Return the last day of the period that the given date falls in using pandas.
+
+    Parameters
+    ----------
+    date : dt
+        date to find last day of period for
+    freq : str
+        frequency of period, must be 'Y', 'M', or 'W'
+
+    Returns
+    -------
+    dt
+        last day of period that date falls in
+    """
+    # Validate frequency
+    if freq not in ('Y', 'M', 'W'):
+        raise ValueError("freq must be 'Y', 'M', or 'W'")
+
+    # Convert datetime to pandas Period
+    period = pd.Period(date, freq=freq)
+
+    # Return the end time of the period as a datetime with time set to 00:00:00
+    return period.end_time.to_pydatetime() \
+        .replace(hour=0, minute=0, second=0, microsecond=0)
