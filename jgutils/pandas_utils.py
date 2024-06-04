@@ -617,7 +617,7 @@ def expand_period_index(
     )
 
     # create index from overall min/max dates in df
-    idx = pd.date_range(d_rng[0], d_rng[1], freq=freq).to_period()
+    idx = pd.date_range(d_rng[0], d_rng[1], freq=date_range_freq(freq)).to_period()
 
     # create index with missing periods per period/group (eg Unit)
     if not group_col is None:
@@ -631,3 +631,11 @@ def expand_period_index(
     return df \
         .merge(pd.DataFrame(index=idx), how='right', left_index=True, right_index=True) \
         .rename_axis(idx_name)
+
+def date_range_freq(freq: str) -> str:
+    """Convert old freq eg M to non-deprecated freq eg ME"""
+    return {
+        'Y': 'YE',
+        'M': 'ME',
+        'W': 'W'
+    }[freq]
