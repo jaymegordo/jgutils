@@ -1,14 +1,9 @@
 import re
 from abc import ABCMeta
-from typing import Any
-from typing import Optional
 from typing import Union
 
-from jgutils.config import IS_REMOTE
-from jgutils.typing import DictAny
 
-
-class PrettyDisplayItem(metaclass=ABCMeta):
+class PrettyDisplayItem(metaclass=ABCMeta):  # noqa: B024
     """Base class for PrettyDict and PrettyString"""
     ansi_codes = {
         'green': '\033[32m',
@@ -27,18 +22,18 @@ class PrettyDisplayItem(metaclass=ABCMeta):
         """Get color for index i"""
         return cls.colors[i % len(cls.colors)]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
     def print(self):
-        print(self.__str__())
+        print(self.__str__())  # noqa: T201
 
     def display(self):
         try:
             from IPython.display import display
             display(self)
         except ImportError:
-            print(self)
+            print(self)  # noqa: T201
 
 
 class PrettyDict(PrettyDisplayItem):
@@ -46,15 +41,18 @@ class PrettyDict(PrettyDisplayItem):
 
     def __init__(
             self,
-            m: Union[DictAny, list[DictAny]],
+            m: dict | list[dict],
+            param: str = '  ',
             max_keys: int = 100,
             max_rows: int = 100,
             color: bool = True):
         """
         Parameters
         ----------
-        m : Union[DictAny, list[DictAny]]
+        m : Union[dict, list[dict]]
             dict or list of dicts to display
+        param : str, optional
+            beginning string that gets multiplied at each depth level, by default '  '
         max_keys : int, optional
             max dict keys to display per level, by default 100
             - NOTE could allow passing max_keys per level
@@ -63,25 +61,30 @@ class PrettyDict(PrettyDisplayItem):
         """
 
         self.m = m
+        self.param = param
         self.max_keys = max_keys
         self.max_rows = max_rows
 
         # list ansi escape codes for each level of depth
-        self.ansi_codes_list = list(self.ansi_codes.values())[:-1]
+        self.ansi_codes_list = list(self.ansi_codes.values())[:-1] * 3
 
         # don't highlight keys, just use structural formatting only
-        if not color:
+        from shelton.config import IS_REMOTE
+        if not color or IS_REMOTE:
             self.ansi_codes_list = [''] * len(self.ansi_codes_list)
+            self.reset = ''
+        else:
+            self.reset = self.ansi_codes['reset']
 
     def __str__(self) -> str:
         return self.pretty_print(self.m)
 
-    def pretty_print(self, m: Union[DictAny, list[DictAny]], depth: int = 0) -> str:
+    def pretty_print(self, m: dict | list[dict], depth: int = 0) -> str:
         """Recursively pretty print nested dicts with keys colored by depth
 
         Parameters
         ----------
-        m : Union[DictAny, list[DictAny]]
+        m : Union[dict, list[dict]]
             nested dict or list of dicts to pretty print
         depth : int, optional
             depth of current dict, default 0
@@ -92,9 +95,9 @@ class PrettyDict(PrettyDisplayItem):
             pretty printed nested dict
         """
         ret = ''
-        depth_indent = depth * '  '
+        depth_indent = depth * self.param
         lst = self.ansi_codes_list
-        reset = self.ansi_codes['reset']
+        reset = self.reset
         i_dict = 0
         i_list = 0
 
@@ -105,7 +108,7 @@ class PrettyDict(PrettyDisplayItem):
                     ret += f'{depth_indent}{lst[depth]}{k}{reset}:\n{self.pretty_print(v, depth + 1)}'
                 else:
                     # join list of dicts into single value
-                    if isinstance(v, (list, tuple)):
+                    if isinstance(v, list | tuple):
                         v = '\n' + '\n'.join([self.pretty_print(item, depth + 1) for item in v])
 
                     ret += f'{depth_indent}{lst[depth]}{k}{reset}: {v}\n'
@@ -115,7 +118,7 @@ class PrettyDict(PrettyDisplayItem):
                     ret += f'{depth_indent}...\n'
                     break
 
-        elif isinstance(m, (list, tuple)):
+        elif isinstance(m, list | tuple):
             for item in m:
                 if isinstance(item, dict):
                     ret += self.pretty_print(item, depth + 1) + '\n'
@@ -138,14 +141,14 @@ class PrettyString(PrettyDisplayItem):
 
     def __init__(
             self,
-            s: Any,
+            s: str,
             color: str = 'green',
             prehighlight: bool = False,
-            expr: Optional[Union[str, 're.Pattern[str]']] = None):
+            expr: Union[str, 're.Pattern[str]'] | None = None):
         """
         Parameters
         ----------
-        s : Any
+        s : str
             string to print
         color : str, optional
             color to use, default 'green'
@@ -162,18 +165,18 @@ class PrettyString(PrettyDisplayItem):
         if isinstance(expr, str):
             expr = re.compile(expr)
 
-        self.expr = expr  # type: Optional[re.Pattern[str]]
+        self.expr = expr  # type: re.Pattern[str] | None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.prehighlight:
             return self.s
         else:
             return self.pretty_print(self.s)
 
-    def __add__(self, other):
+    def __add__(self, other: str) -> str:
         return str(self) + other
 
-    def __radd__(self, other):
+    def __radd__(self, other: str) -> str:
         return other + str(self)
 
     def _wrap_highlight(self, s: str) -> str:
@@ -195,6 +198,7 @@ class PrettyString(PrettyDisplayItem):
         str
             string with ansi escape code colors
         """
+        from shelton.config import IS_REMOTE
         if IS_REMOTE:
             return str(s)
 

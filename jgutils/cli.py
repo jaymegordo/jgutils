@@ -3,12 +3,11 @@ import subprocess
 import sys
 from argparse import ArgumentParser
 from argparse import ArgumentTypeError
+from datetime import datetime as dt
 
 from dateutil import parser
 
 from jgutils.logger import Loggable
-from jgutils.typing import DtNone
-from jgutils.typing import StrNone
 
 
 class CustomArgumentParser(ArgumentParser, Loggable):
@@ -61,17 +60,17 @@ class CustomArgumentParser(ArgumentParser, Loggable):
         self.add_argument(*args, **kw)
 
     @staticmethod
-    def validate_date(s: StrNone) -> DtNone:
+    def validate_date(s: str | None) -> dt | None:
         """Parse and return date as UTC datetime object.
 
         Parameters
         ----------
-        s : StrNone
+        s : str | None
             Date string to parse.
 
         Returns
         -------
-        DtNone
+        dt | None
             Parsed date as UTC datetime object if given else None.
 
         """

@@ -4,16 +4,12 @@ from typing import Any
 from jgutils.pretty import PrettyString as PS
 
 
-class DictRepr(object, metaclass=ABCMeta):
+class DictRepr(metaclass=ABCMeta):  # noqa: B024
     """Class to add better string rep with to_dict"""
     display_keys = []  # type: list[str]
     max_key_len = 40
 
-    def to_dict_str(self):
-        """TODO func to convert values of output dicts to string reprs based on dtype"""
-        pass
-
-    def truncate(self, text: Any) -> str:
+    def truncate(self, text: str) -> str:
         """Truncate display value to max_key_len
 
         Parameters
@@ -42,7 +38,7 @@ class DictRepr(object, metaclass=ABCMeta):
             m = None
 
         # convert list to dict of self items
-        if isinstance(m, (list, tuple)):
+        if isinstance(m, list | tuple):
             m = {k: getattr(self, k) for k in m}
 
         if m:
@@ -58,12 +54,12 @@ class DictRepr(object, metaclass=ABCMeta):
     def keys(self) -> list[str]:
         return list(self.to_dict().keys())
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Any:  # noqa: ANN401
         """Used to call dict() on object
         - NOTE this calls self.to_dict() for every key requested
         - NOTE not actually used yet
         """
         return self.to_dict()[key]
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401
         return self.to_dict().get(key, default)

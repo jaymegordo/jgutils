@@ -1,24 +1,23 @@
 import json
 import re
 import sys
+from collections.abc import Iterable
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Iterable
-from typing import Optional
 from typing import TypeVar
-from typing import Union
 
 import yaml
 
-from jgutils.typing import DictAny
-from jgutils.typing import Listable
+if TYPE_CHECKING:
+    from jgutils.typing import Listable
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
 T = TypeVar('T')
 
 
-def as_list(items: Optional[Listable[T]]) -> list[T]:
+def as_list(items: 'Listable[T] | None') -> list[T]:
     """Convert single item or list/tuple of items to list
     - if items is None, return empty list
 
@@ -57,14 +56,14 @@ def flatten_list_list(lst: Iterable[list]) -> list:
     return [item for sublist in lst for item in sublist]
 
 
-def safe_append(lst: list, item: Union[list, Any]) -> None:
-    """safely append or extend to list
+def safe_append(lst: list, item: list | Any) -> None:  # noqa: ANN401
+    """Safely append or extend to list
 
     Parameters
     ----------
     lst : list
         list to append/extend on
-    item : Union[list, Any]
+    item : list | Any
         item(s) to append/extend
     """
     if isinstance(item, list):
@@ -73,7 +72,7 @@ def safe_append(lst: list, item: Union[list, Any]) -> None:
         lst.append(item)
 
 
-def set_self(exclude: Optional[Union[tuple, str]] = None, include: Optional[DictAny] = None):
+def set_self(exclude: tuple | str | None = None, include: dict | None = None):
     """Convenience func to assign an object's func's local vars to self"""
     fr = sys._getframe(1)
     # code = fr.f_code
@@ -107,7 +106,7 @@ def inverse(m: dict) -> dict:
     return {v: k for k, v in m.items()}
 
 
-def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool = False) -> Optional[str]:
+def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool = False) -> str | None:
     """Print pretty dict converted to newlines
     Paramaters
     ----
@@ -126,7 +125,7 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
         'Key 2: value 2"
     """
 
-    def _bold_keys(m):
+    def _bold_keys(m: dict) -> dict:
         """Recursively bold all keys in dict"""
         if isinstance(m, dict):
             return {f'**{k}**': _bold_keys(v) for k, v in m.items()}
@@ -156,22 +155,22 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
     # s = re.sub(r'(\n\s+)(\n)', r'\2', s)
 
     if prnt:
-        print(s)
+        print(s)  # noqa: T201
     else:
         return s
 
 
-def nested_dict_update(m1: DictAny, m2: DictAny) -> DictAny:
+def nested_dict_update(m1: dict, m2: dict) -> dict:
     """Nested update dict m1 with keys/vals from m2
 
     Parameters
     ----------
-    m1 : DictAny
-    m2 : DictAny
+    m1 : dict
+    m2 : dict
 
     Returns
     -------
-    DictAny
+    dict
         updated dict
     """
     if not isinstance(m1, dict) or not isinstance(m2, dict):
@@ -183,7 +182,7 @@ def nested_dict_update(m1: DictAny, m2: DictAny) -> DictAny:
         return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}
 
 
-def check_path(p: Union[Path, str]) -> Path:
+def check_path(p: Path | str) -> Path:
     """Create path if doesn't exist
 
     Returns
@@ -204,7 +203,7 @@ def check_path(p: Union[Path, str]) -> Path:
     return p
 
 
-def load_yaml(p: Path) -> Any:
+def load_yaml(p: Path) -> Any:  # noqa: ANN401
     """Load yaml from file
 
     Parameters
@@ -228,7 +227,7 @@ def write_yaml(p: Path, data: dict):
     ----------
     p : Path
         Path to write to
-    data : DictAny
+    data : dict
         Data to write
     """
     p = check_path(p)

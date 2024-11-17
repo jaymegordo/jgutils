@@ -20,9 +20,8 @@ cryptography = "^38.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^6.2.4"
-autopep8 = "^1.5.7"
-isort = "^5.8.0"
-ruff = "^0.0.263"
+autopep8 = "^2.3.1"
+ruff = "^0.7.4"
 pre-commit = "^2.12.1"
 
 
@@ -38,18 +37,122 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 reportWildcardImportFromLibrary = "none"
+reportTypedDictNotRequiredAccess = "none"
 reportUnboundVariable = "information"
 reportMissingImports = "information"
 reportGeneralTypeIssues = "information"
+reportArgumentType = 'information'
+reportAssignmentType = 'information'
+reportAttributeAccessIssue = 'information'
+reportReturnType = 'information'
+reportCallIssue = 'information'
+reportOperatorIssue = 'information'
+reportRedeclaration = 'information'
 reportOptionalIterable = "none"
 reportOptionalMemberAccess = "information"
 reportOptionalSubscript = "information"
-
-[tool.isort]
-multi_line_output = 3
-force_single_line = true
+reportPrivateImportUsage = "information"
+reportUnusedExpression = "information"
+reportInvalidStringEscapeSequence = "information"
+reportSelfClsParameterName = "error"
 
 
 [tool.ruff]
+cache-dir = "~/.cache/ruff"
 line-length = 120
-ignore = ["E713", "E714", "E722", "E731", "F405", "F841"]
+exclude = ["working/*"]
+target-version = "py311"
+
+[tool.ruff.format]
+quote-style = "single"
+exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "B",
+    "D",
+    "N",
+    "UP",
+    "T20",
+    "PTH",
+    "PD",
+    "PGH",
+    "TCH",
+    "ANN",
+    "RET",
+    "SIM",
+    "Q",
+    "C4",
+    "TRY",
+    "DJ",
+]
+ignore = [
+    "E712",
+    "E713",
+    "E714",
+    "E722",
+    "E731",
+    "F405",
+    "F841",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D200",
+    "D202",
+    "D204",
+    "D205",
+    "D301",
+    "D400",
+    "D401",
+    "D415",
+    "ANN101",
+    "ANN102",
+    "ANN002",
+    "ANN003",
+    "RET503",
+    "RET505",
+    "PD901",
+    "PD003",
+    "PD004",
+    "PLR5501",
+    "PLR2004",
+    "PGH003",
+    "N817",
+    "SIM201",
+    "SIM108",
+    "SIM118",
+    "Q003",
+    "C408",
+    "TRY003",
+    "TRY201",
+    "TRY300",
+    "TRY400",
+    "DJ001",
+    "UP039",
+    "TCH003",  # standard library
+]
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true
+exempt-modules = ["shelton.typing"]
+
+[tool.ruff.lint.flake8-annotations]
+suppress-none-returning = true
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.pylint]
+max-args = 6
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+force-single-line = true

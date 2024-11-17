@@ -1,14 +1,16 @@
+import contextlib
 import multiprocessing
 import threading
 import time
+from collections.abc import Callable
+from collections.abc import Generator
+from collections.abc import Iterable
 from queue import Queue
 from threading import Thread
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
-from typing import Iterable
 from typing import Literal
-from typing import Optional
-from typing import Union
+from typing import Self
 from typing import overload
 
 from joblib import Parallel
@@ -16,17 +18,14 @@ from joblib import delayed
 
 from jgutils import config as cf
 from jgutils import utils as utl
-from jgutils.errors import ExpectedException
+from jgutils.errors import ExpectedError
 from jgutils.logger import get_log
-from jgutils.typing import DictAny
-from jgutils.typing import IntNone
-from jgutils.typing import Listable
-from jgutils.typing import StrNone
 
-try:
+if TYPE_CHECKING:
+    from jgutils.typing import Listable
+
+with contextlib.suppress(ModuleNotFoundError):
     from tqdm import tqdm
-except ModuleNotFoundError:
-    pass
 
 
 log = get_log(__name__)
@@ -35,8 +34,11 @@ log = get_log(__name__)
 class ErrThread(Thread):
     """Thread to catch and raise errors in the parent thread"""
 
-    def __init__(self, target: Callable, args: list[Any] = [], kwargs: DictAny = {}):
+    def __init__(self, target: Callable, args: list[Any] | None = None, kwargs: dict | None = None):
         self.exc = None
+
+        args = args or []
+        kwargs = kwargs or {}
 
         def new_target():
             try:
@@ -56,24 +58,24 @@ class ThreadManager():
 
     def __init__(
             self,
-            func: Union[Callable[..., Any], str],
-            items: Union[list[DictAny], Iterable[Any]],
+            func: Callable[..., Any],
+            items: list[dict] | Iterable[Any],
             raise_errors: bool = True,
-            allowed_errors: Optional[Listable[type[Exception]]] = None,
+            allowed_errors: 'Listable[type[Exception]] | None' = None,
             warn_expected: bool = True,
             dict_args: bool = True,
-            func_kw: Optional[DictAny] = None,
+            func_kw: dict | None = None,
             use_tqdm: bool = True,
             n_jobs: int = 20,
-            backend: StrNone = 'threading',
+            backend: str | None = 'threading',
             _log: bool = False):
         """Thread manager to manage calling a single function with multiple sets of arguments.
 
         Parameters
         ----------
-        func : Union[Callable[..., Any], str]
+        func : Callable[... | Any, str]
             Function to call. If string, will do getattr on items in items.
-        items : Union[list[DictAny], Iterable[Any]]
+        items : Union[list[dict], Iterable[Any]]
             List of arguments to pass to func.
             If dict_args is True, will assume each item is a dict of arguments to unpack.
         raise_errors : bool, optional
@@ -84,13 +86,13 @@ class ThreadManager():
             Show warning on expected errors, by default True
         dict_args : bool, optional
             If True, unpack items to func, else pass single in items as item to func
-        func_kw : Optional[DictAny], optional
+        func_kw : Optional[dict], optional
             Static keyword arguments to pass to func (if str func), by default None
         use_tqdm : bool, optional
             Use tqdm to show progress, by default True
         n_jobs : int, optional
             Number of threads to use (only works with .run not .start), by default 50
-        backend : StrNone, optional
+        backend : str | None, optional
             Backend to use for joblib, by default 'threading' - pass None to use default
         _log : bool, optional
             Show log message, by default False
@@ -106,7 +108,7 @@ class ThreadManager():
         self.raise_errors = raise_errors
         self.allowed_errors = utl.as_list(allowed_errors)
         self.warn_expected = warn_expected
-        self.allowed_errors.append(ExpectedException)
+        self.allowed_errors.append(ExpectedError)
 
         self.backend = backend
 
@@ -122,18 +124,18 @@ class ThreadManager():
         self.use_tqdm = use_tqdm if not cf.IS_REMOTE and _log else False
 
     @overload
-    def start(self, wait: Literal[True] = True, _log=False) -> list[Any]:
+    def start(self, wait: Literal[True], _log: bool = False) -> list[Any]:
         ...
 
     @overload
-    def start(self, wait: Literal[False], _log=False) -> 'ThreadManager':
+    def start(self, wait: Literal[False], _log: bool = False) -> 'ThreadManager':
         ...
 
-    def start(self, wait: bool = True, _log: bool = False) -> Union['ThreadManager', list[Any]]:
+    def start(self, wait: bool = True, _log: bool = False) -> 'ThreadManager | list[Any]':
         """Start all threads."""
 
         for m in self.items:
-            thread = ErrThread(target=lambda q, kw: q.put(
+            thread = ErrThread(target=lambda q, kw, m=m: q.put(
                 self.func(**m)), args=[self.queue, m])
             self.threads.append(thread)
             thread.start()
@@ -193,7 +195,7 @@ class ThreadManager():
         """Wrapper to catch errors and log
         - NOTE only used for Parallel/tqdm implementation for now
         """
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:  # noqa: ANN401
             try:
                 return func(*args, **kwargs)
             except Exception as e:
@@ -266,8 +268,8 @@ class ProgressParallel(Parallel):
     def __init__(
             self,
             use_tqdm: bool = True,
-            total: IntNone = None,
-            items: Optional[Iterable[Any]] = None,
+            total: int | None = None,
+            items: Iterable[Any] | None = None,
             _log: bool = False,
             *args, **kwargs):
 
@@ -287,7 +289,7 @@ class ProgressParallel(Parallel):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def thread(cls, *args, **kw):
+    def thread(cls, *args, **kw) -> Self:
         """Convenience method to create threadded parallel object with defaults:
         - n_jobs = 50 (arbitrary)
         - backend = 'threading'
@@ -305,7 +307,7 @@ class ProgressParallel(Parallel):
 
         return cls(*args, **kw)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> Generator[Any, None, None]:
         if self._log:
             log.info(
                 f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')

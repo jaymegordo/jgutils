@@ -2,12 +2,11 @@
 Pandas/DataFrame utils
 """
 import re
+from collections.abc import Iterable
 from datetime import datetime as dt
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Iterable
 from typing import TypeVar
-from typing import Union
 from typing import overload
 
 import numpy as np
@@ -16,17 +15,18 @@ import pandas as pd
 from jgutils import functions as f
 from jgutils import utils as utl
 from jgutils.logger import get_log
-from jgutils.typing import Listable
 
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
+
+    from jgutils.typing import Listable
 
 log = get_log(__name__)
 
 TupleType = TypeVar('TupleType', bound=tuple[str, ...])
 
 
-def filter_df(dfall, symbol):
+def filter_df(dfall: pd.DataFrame, symbol: str) -> pd.DataFrame:
     return dfall[dfall.symbol == symbol].reset_index(drop=True)
 
 
@@ -94,7 +94,7 @@ def clean_cols(df: pd.DataFrame, cols: list) -> pd.DataFrame:
 
 def safe_drop(
         df: pd.DataFrame,
-        cols: Listable[str],
+        cols: 'Listable[str]',
         do: bool = True) -> pd.DataFrame:
     """Drop columns from dataframe if they exist
 
@@ -212,14 +212,14 @@ def left_merge(df: pd.DataFrame, df_right: pd.DataFrame) -> pd.DataFrame:
             right_index=True)
 
 
-def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: Union[str, type]) -> pd.DataFrame:
+def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: str | type) -> pd.DataFrame:
     """Safe convert cols to dtype
 
     Parameters
     ----------
     df : pd.DataFrame
     cols : list[str]
-    _type : Union[str, type]
+    _type : str | type
         dtype to convert to
 
     Returns
@@ -231,26 +231,23 @@ def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: Union[str, type]) -
     return df.assign(**m_types)
 
 
-def remove_bad_chars(w: str):
-    """Remove any bad chars " : < > | . \\ / * ? in string to make safe for filepaths"""  # noqa
+def remove_bad_chars(w: str) -> str:
+    """Remove any bad chars " : < > | . \\ / * ? in string to make safe for filepaths"""
     return re.sub(r'[":<>|.\\\/\*\?]', '', str(w))
 
 
-def from_snake(s: str):
+def from_snake(s: str) -> str:
     """Convert from snake case cols to title"""
     return s.replace('_', ' ').title()
 
 
-def to_snake(s: str):
+def to_snake(s: str) -> str:
     """Convert messy camel case to lower snake case
 
     Parameters
     ----------
     s : str
         string to convert to special snake case
-
-    Examples
-    --------
     """
     s = remove_bad_chars(s).strip()  # get rid of /<() etc
     s = re.sub(r'[\]\[()]', '', s)  # remove brackets/parens
@@ -297,21 +294,21 @@ def lower_cols(df: list[str]) -> list[str]:
 
 
 def lower_cols(
-    df: Union[pd.DataFrame, list[str]],
+    df: pd.DataFrame | list[str],
     title: bool = False
-) -> Union[pd.DataFrame, list[str]]:
+) -> pd.DataFrame | list[str]:
     """Convert df columns to snake case and remove bad characters
 
     Parameters
     ----------
-    df : Union[pd.DataFrame, list]
+    df : pd.DataFrame | list
         dataframe or list of strings
     title : bool, optional
         convert back to title case, by default False
 
     Returns
     -------
-    Union[pd.DataFrame, list]
+    pd.DataFrame | list
     """
     is_list = False
 
@@ -331,7 +328,7 @@ def lower_cols(
         return df.pipe(lambda df: df.rename(columns=m_cols))
 
 
-def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
+def lower_vals(df: pd.DataFrame, cols: 'Listable[str]') -> pd.DataFrame:
     """Convert values in cols to snake_case using to_snake
 
     Parameters
@@ -396,7 +393,7 @@ def reorder_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
 
 
 def terminal_df(
-        df: Union[pd.DataFrame, 'Styler'],
+        df: 'pd.DataFrame | Styler',
         date_only: bool = True,
         show_na: bool = False,
         pad: bool = False,
@@ -405,7 +402,7 @@ def terminal_df(
 
     Parameters
     ----------
-    df : Union[pd.DataFrame, Styler]
+    df : pd.DataFrame | Styler
         df or styler object
     date_only : bool, optional
         truncate datetime to date only, by default True
@@ -443,7 +440,7 @@ def terminal_df(
     if pad:
         s = f'\n{s}\n'
 
-    print(s)
+    print(s)  # noqa: T201
 
 
 def concat(df: pd.DataFrame, df_new: pd.DataFrame) -> pd.DataFrame:
@@ -463,7 +460,7 @@ def concat(df: pd.DataFrame, df_new: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([df, df_new])
 
 
-def minmax_scale(s: pd.Series, feature_range=(0, 1)) -> np.ndarray:
+def minmax_scale(s: pd.Series, feature_range: tuple[float, float] = (0, 1)) -> np.ndarray:
     """Linear interpolation
     - Reimplementation of sklearn minmax_scale without having to import sklearn
 
@@ -480,7 +477,7 @@ def minmax_scale(s: pd.Series, feature_range=(0, 1)) -> np.ndarray:
     return np.interp(s, (s.min(), s.max()), feature_range)
 
 
-def split(df: pd.DataFrame, target: Union[list[str], str] = 'target') -> tuple[pd.DataFrame, pd.Series]:
+def split(df: pd.DataFrame, target: list[str] | str = 'target') -> tuple[pd.DataFrame, pd.Series]:
     """Split off target col to make X and y"""
     if isinstance(target, list) and len(target) == 1:
         target = target[0]
@@ -554,7 +551,7 @@ def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') ->
 
 def select_by_multiindex(
         df: pd.DataFrame,
-        keys: Listable[tuple[str, str]],
+        keys: 'Listable[tuple[str, str]]',
         names: list[str]) -> pd.DataFrame:
     """Select df by multiindex keys
 
@@ -590,7 +587,7 @@ def expand_period_index(
         'Y', 'M' or 'W', default 'M'
     d_rng : tuple[dt, dt], optional
         date range to expand to, default None
-    group_col : StrNone, optional
+    group_col : str | None, optional
         group column to expand to, default None
 
     Returns
@@ -631,6 +628,7 @@ def expand_period_index(
     return df \
         .merge(pd.DataFrame(index=idx), how='right', left_index=True, right_index=True) \
         .rename_axis(idx_name)
+
 
 def date_range_freq(freq: str) -> str:
     """Convert old freq eg M to non-deprecated freq eg ME"""
