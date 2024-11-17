@@ -23,7 +23,7 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
         try:
             text = str(text)
             return text[:self.max_key_len] + '...' if len(text) > self.max_key_len else text
-        except:
+        except BaseException:
             return text
 
     def __str__(self) -> str:

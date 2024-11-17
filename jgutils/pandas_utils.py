@@ -603,7 +603,7 @@ def expand_period_index(
 
         try:
             d_rng = (s.min().to_timestamp(), s.max().to_timestamp())
-        except:
+        except BaseException:
             log.warning('No rows in period index to expand.')
             return df
 
