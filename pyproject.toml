@@ -60,7 +60,7 @@ reportSelfClsParameterName = "error"
 [tool.ruff]
 cache-dir = "~/.cache/ruff"
 line-length = 120
-exclude = ["working/*"]
+exclude = ["notebooks/*"]
 target-version = "py311"
 
 [tool.ruff.format]
