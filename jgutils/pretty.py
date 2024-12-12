@@ -69,7 +69,7 @@ class PrettyDict(PrettyDisplayItem):
         self.ansi_codes_list = list(self.ansi_codes.values())[:-1] * 3
 
         # don't highlight keys, just use structural formatting only
-        from shelton.config import IS_REMOTE
+        from jgutils.config import IS_REMOTE
         if not color or IS_REMOTE:
             self.ansi_codes_list = [''] * len(self.ansi_codes_list)
             self.reset = ''
@@ -198,7 +198,7 @@ class PrettyString(PrettyDisplayItem):
         str
             string with ansi escape code colors
         """
-        from shelton.config import IS_REMOTE
+        from jgutils.config import IS_REMOTE
         if IS_REMOTE:
             return str(s)
 
