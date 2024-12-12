@@ -3,35 +3,34 @@ General regex string processing functions
 """
 
 import re
+from datetime import datetime as dt
 
 import pandas as pd
 
 from jgutils.logger import get_log
-from jgutils.typing import FloatNone
-from jgutils.typing import StrNone
 
 log = get_log(__name__)
 
 # set of months lowercase, and month abbreviations
-MONTHS = set([
+MONTHS = {
     'january', 'february', 'march', 'april', 'may', 'june', 'july',
     'august', 'september', 'october', 'november', 'december', 'jan',
-    'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct',
-    'nov', 'dec'])
+    'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct',
+    'nov', 'dec'}
 
 # regex expr to replace any instance of a month with <month>
 RE_MONTHS = re.compile(r'\b(' + '|'.join(MONTHS) + r')\b', re.IGNORECASE)
 
 # set of days lowercase, and day abbreviations
-DAYS = set([
+DAYS = {
     'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
-    'sunday', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'])
+    'sunday', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'}
 
 # regex expr to replace any instance of a day with <day>
 RE_DAYS = re.compile(r'\b(' + '|'.join(DAYS) + r')\b', re.IGNORECASE)
 
 
-def extract_date(text: str) -> StrNone:
+def extract_date(text: str) -> str | None:
     """Try to extract date (eg 'June 30, 2021') in word format from text
 
     Parameters
@@ -41,7 +40,7 @@ def extract_date(text: str) -> StrNone:
 
     Returns
     -------
-    StrNone
+    str | None
         date in word format, or None if no date found
     """
     expr = r'\w+\s+\d{1,2}[,/]\s+\d{4}'
@@ -96,7 +95,7 @@ def sub_numbers(text: str) -> str:
     return re.sub(r' \d+', ' number', text)
 
 
-def parse_currency(text: str) -> FloatNone:
+def parse_currency(text: str) -> float | None:
     """
     Parse currency from text
     - TODO this will need more testing
@@ -134,7 +133,7 @@ def parse_currency(text: str) -> FloatNone:
             return None
 
 
-def parse_date(s: str):
+def parse_date(s: str) -> dt | None:
     """Parse date from string
     - TODO #265 probably need to test/handle various formats
         - eg 'June 30, 2021' works, but 'June 30,2021' doesn't
@@ -156,7 +155,7 @@ def parse_date(s: str):
         return pd.NaT
 
 
-def parse_string(s: str) -> StrNone:
+def parse_string(s: str) -> str | None:
     """Check if string value does NOT contain valid currency or date
 
     Parameters
@@ -166,11 +165,11 @@ def parse_string(s: str) -> StrNone:
 
     Returns
     -------
-    StrNone
+    str | None
         same input string as long as it does not contain currency or date
     """
     exclude_funcs = [parse_currency, parse_date]
-    return s if all([pd.isnull(func(s)) for func in exclude_funcs]) and len(s) > 0 else None
+    return s if all(pd.isnull(func(s)) for func in exclude_funcs) and len(s) > 0 else None
 
 
 def sub_multi(text: str, sub_vals: list[tuple[str, str]]) -> str:

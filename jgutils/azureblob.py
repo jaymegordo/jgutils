@@ -9,7 +9,6 @@ import logging
 import re
 from pathlib import Path
 
-from azure.storage.blob import BlobClient  # noqa
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
 
@@ -17,7 +16,6 @@ from jgutils import fileops as fl
 from jgutils import functions as f
 from jgutils.logger import get_log
 from jgutils.secrets import SecretsManager
-from jgutils.typing import StrNone
 
 log = get_log(__name__)
 
@@ -25,7 +23,7 @@ log = get_log(__name__)
 logging.getLogger('azure.core.pipeline.policies').setLevel(logging.WARNING)
 
 
-class BlobStorage:
+class BlobStorage():
     def __init__(self, container: str | Path) -> None:
         """
 
@@ -34,7 +32,8 @@ class BlobStorage:
         container : str, optional
             container to use by default, by default 'jambot-app'
         """
-        creds = SecretsManager('azure_blob.yaml').load
+        # TODO fix this
+        creds = SecretsManager('azure_blob.yaml').load()
         self.client = BlobServiceClient.from_connection_string(
             creds['connection_string'])
 
@@ -56,9 +55,7 @@ class BlobStorage:
 
         return self._p_local
 
-    def get_container(
-            self,
-            container: str | ContainerClient | None = None) -> ContainerClient:
+    def get_container(self, container: str | ContainerClient = None) -> ContainerClient:
         """Get container object
 
         Parameters
@@ -80,7 +77,7 @@ class BlobStorage:
 
     def clear_container(
             self,
-            container: str | ContainerClient | None = None,
+            container: str | ContainerClient = None,
             match: str = '.') -> None:
         """Delete all files in container
 
@@ -101,7 +98,7 @@ class BlobStorage:
     def upload_dir(
             self,
             p: Path = None,
-            container: str | ContainerClient | None = None,
+            container: str | ContainerClient = None,
             mirror: bool = True,
             match: str = '.') -> None:
         """Upload entire dir files to container
@@ -110,7 +107,7 @@ class BlobStorage:
         ----------
         p : Path
             dir to upload, default self.p_local
-        container : str | ContainerClient | None
+        container : str | ContainerClient, optional
         mirror : bool, optional
             if true, delete all contents from container first
         match : str, optional
@@ -127,10 +124,9 @@ class BlobStorage:
 
         i = 0
         for _p in p.iterdir():
-            if not _p.is_dir():
-                if re.search(match, _p.name, flags=re.IGNORECASE):
-                    self.upload_file(p=_p, container=container, _log=False)
-                    i += 1
+            if not _p.is_dir() and re.search(match, _p.name, flags=re.IGNORECASE):
+                self.upload_file(p=_p, container=container, _log=False)
+                i += 1
 
         log.info(
             f'Uploaded [{i}] file(s) to container "{container.container_name}"')
@@ -138,7 +134,7 @@ class BlobStorage:
     def download_dir(
             self,
             p: Path = None,
-            container: str | ContainerClient | None = None,
+            container: str | ContainerClient = None,
             mirror: bool = True,
             match: str = '.') -> None:
         """Download entire container to local dir
@@ -147,7 +143,7 @@ class BlobStorage:
         ----------
         p : Path
             dir to download to
-        container : str | ContainerClient | None
+        container : str | ContainerClient, optional
         mirror : bool, optional
             if true, clear local dir first, by default True
         match : str, optional
@@ -186,7 +182,7 @@ class BlobStorage:
     def download_file(
             self,
             p: Path | str,
-            container: str | ContainerClient | None = None,
+            container: str | ContainerClient = None,
             _log: bool = True) -> Path:
         """Download file from container and save to local file
 
@@ -217,7 +213,7 @@ class BlobStorage:
     def upload_file(
             self,
             p: Path,
-            container: str | ContainerClient | None = None,
+            container: str | ContainerClient = None,
             _log: bool = True) -> None:
         """Save local file to container
 
@@ -245,7 +241,7 @@ class BlobStorage:
         names = [c.name for c in self.client.list_containers()]
         f.pretty_dict(names)
 
-    def list_files(self, container: StrNone = None, match: str = '.') -> list[str]:
+    def list_files(self, container: str | None = None, match: str = '.') -> list[str]:
         """Get list of files in container
 
         Parameters
@@ -264,7 +260,7 @@ class BlobStorage:
         return sorted([b.name for b in _container.list_blobs()
                        if re.search(match, b.name, flags=re.IGNORECASE)])
 
-    def show_files(self, container: StrNone = None, **kw) -> None:
+    def show_files(self, container: str | None = None, **kw) -> None:
         """Print list of files in container
 
         Parameters

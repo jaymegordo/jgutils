@@ -14,17 +14,18 @@ import pandas as pd
 
 from jgutils import utils as utl
 from jgutils.logger import get_log
-from jgutils.typing import Listable
 
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
+
+    from jgutils.typing import Listable
 
 log = get_log(__name__)
 
 TupleType = TypeVar('TupleType', bound=tuple[str, ...])
 
 
-def filter_df(dfall, symbol):
+def filter_df(dfall: pd.DataFrame, symbol: str) -> pd.DataFrame:
     return dfall[dfall.symbol == symbol].reset_index(drop=True)
 
 
@@ -92,7 +93,7 @@ def clean_cols(df: pd.DataFrame, cols: list) -> pd.DataFrame:
 
 def safe_drop(
         df: pd.DataFrame,
-        cols: Listable[str],
+        cols: 'Listable[str]',
         do: bool = True) -> pd.DataFrame:
     """Drop columns from dataframe if they exist
 
@@ -229,26 +230,23 @@ def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: str | type) -> pd.D
     return df.assign(**m_types)
 
 
-def remove_bad_chars(w: str):
-    """Remove any bad chars " : < > | . \\ / * ? in string to make safe for filepaths"""  # noqa
+def remove_bad_chars(w: str) -> str:
+    """Remove any bad chars " : < > | . \\ / * ? in string to make safe for filepaths"""
     return re.sub(r'[":<>|.\\\/\*\?]', '', str(w))
 
 
-def from_snake(s: str):
+def from_snake(s: str) -> str:
     """Convert from snake case cols to title"""
     return s.replace('_', ' ').title()
 
 
-def to_snake(s: str):
+def to_snake(s: str) -> str:
     """Convert messy camel case to lower snake case
 
     Parameters
     ----------
     s : str
         string to convert to special snake case
-
-    Examples
-    --------
     """
     s = remove_bad_chars(s).strip()  # get rid of /<() etc
     s = re.sub(r'[\]\[()]', '', s)  # remove brackets/parens
@@ -329,7 +327,7 @@ def lower_cols(
         return df.pipe(lambda df: df.rename(columns=m_cols))
 
 
-def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
+def lower_vals(df: pd.DataFrame, cols: 'Listable[str]') -> pd.DataFrame:
     """Convert values in cols to snake_case using to_snake
 
     Parameters
@@ -441,7 +439,7 @@ def terminal_df(
     if pad:
         s = f'\n{s}\n'
 
-    print(s)
+    print(s)  # noqa: T201
 
 
 def concat(df: pd.DataFrame, df_new: pd.DataFrame) -> pd.DataFrame:
@@ -461,7 +459,7 @@ def concat(df: pd.DataFrame, df_new: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([df, df_new])
 
 
-def minmax_scale(s: pd.Series, feature_range=(0, 1)) -> np.ndarray:
+def minmax_scale(s: pd.Series, feature_range: tuple[float, float] = (0, 1)) -> np.ndarray:
     """Linear interpolation
     - Reimplementation of sklearn minmax_scale without having to import sklearn
 
@@ -552,7 +550,7 @@ def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') ->
 
 def select_by_multiindex(
         df: pd.DataFrame,
-        keys: Listable[tuple[str, str]],
+        keys: 'Listable[tuple[str, str]]',
         names: list[str]) -> pd.DataFrame:
     """Select df by multiindex keys
 
@@ -588,7 +586,7 @@ def expand_period_index(
         'Y', 'M' or 'W', default 'M'
     d_rng : tuple[dt, dt], optional
         date range to expand to, default None
-    group_col : StrNone, optional
+    group_col : str | None, optional
         group column to expand to, default None
 
     Returns
@@ -604,7 +602,7 @@ def expand_period_index(
 
         try:
             d_rng = (s.min().to_timestamp(), s.max().to_timestamp())
-        except:
+        except BaseException:
             log.warning('No rows in period index to expand.')
             return df
 

@@ -14,7 +14,6 @@ Examples
 import profile
 import pstats
 from typing import TYPE_CHECKING
-from typing import Union
 
 import pandas as pd
 from IPython.core.magic import Magics
@@ -25,7 +24,6 @@ from seaborn import diverging_palette
 from jgutils import config as cf
 from jgutils import re_utils as ru
 from jgutils.pretty import PrettyDict as PD
-from jgutils.typing import StrNone
 
 if TYPE_CHECKING:
     from pandas.io.formats.style import Styler
@@ -34,13 +32,13 @@ if TYPE_CHECKING:
 _cmap = diverging_palette(240, 10, sep=10, n=21, as_cmap=True, center='dark')
 
 
-def format_cell(bg, t='inherit'):
+def format_cell(bg: str, t: str = 'inherit') -> str:
     return f'background-color: {bg};color: {t};'
 
 
 def bg(
         style: 'Styler',
-        subset: Union[list[str], None] = None,
+        subset: list[str] | None = None,
         higher_better: bool = True,
         axis: int = 0) -> 'Styler':
     """Show style with highlights per column"""
@@ -73,7 +71,7 @@ def highlight_max_col(
 class ProfileMagic(Magics):
 
     @cell_magic
-    def prof(self, params: str = '', cell: StrNone = None):
+    def prof(self, params: str = '', cell: str | None = None) -> 'Styler':
 
         # opts = eg {'h': ['5']}
         opts, arg_str = self.parse_options(
@@ -179,6 +177,6 @@ def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -
         .format(escape='html', subset=['module', 'func'])
 
 
-def load_ipython_extension(ipython):
+def load_ipython_extension(ipython) -> None:  # noqa: ANN001
     """Load the extension in IPython"""
     ipython.register_magics(ProfileMagic)

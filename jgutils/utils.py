@@ -1,16 +1,19 @@
 import warnings
+from collections.abc import Iterable
 from datetime import date
 from datetime import datetime as dt
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
-from collections.abc import Iterable
 from typing import overload
 
 import pandas as pd
 
 from jgutils import typing as tp
-from jgutils.typing import Listable
-from jgutils.typing import T
+
+if TYPE_CHECKING:
+    from jgutils.typing import Listable
+    from jgutils.typing import T
 
 #  from pandas.to_datetime
 warnings.filterwarnings(
@@ -22,7 +25,7 @@ def check_path(p: Path | str, force_file: bool = False) -> Path:
 
     Parameters
     ----------
-    p : Union[Path, str]
+    p : Path | str
         path to check
     force_file : bool, optional
         if True, path IS a file (eg files with extensions), by default False
@@ -46,7 +49,7 @@ def check_path(p: Path | str, force_file: bool = False) -> Path:
     return p
 
 
-def flatten_list_list(lst: list[list[T]]) -> list[T]:
+def flatten_list_list(lst: list[list['T']]) -> list['T']:
     """Flatten single level nested list of lists
 
     Parameters
@@ -62,7 +65,7 @@ def flatten_list_list(lst: list[list[T]]) -> list[T]:
 
 
 @overload
-def as_list(items: Listable[T]) -> list[T]:
+def as_list(items: 'Listable[T]') -> list['T']:
     ...
 
 
@@ -82,8 +85,8 @@ def as_list(items: None) -> list[Any]:
 
 
 def as_list(
-        items: Listable[T] | dict[Any, Any] | str | None
-) -> list[T] | list[tuple[Any, Any]] | list[str] | list[Any]:
+        items: tp.Listable['T'] | dict[Any, Any] | str | None
+) -> list['T'] | list[tuple[Any, Any]] | list[str] | list[Any]:
     """Convert single item or iterable of items to list
     - if items is None, return empty list
 

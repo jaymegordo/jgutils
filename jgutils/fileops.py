@@ -51,15 +51,15 @@ def save_pickle(obj: object, p: Path, name: str) -> Path:
         path of saved file
     """
     p = p / f'{name}.pkl'
-    with open(check_path(p), 'wb') as file:
+    with check_path(p).open('wb') as file:
         pickle.dump(obj, file)
 
     return p
 
 
-def load_pickle(p: Path) -> Any:
+def load_pickle(p: Path) -> Any:  # noqa: ANN401
     """Load pickle from file"""
-    with open(p, 'rb') as file:
+    with p.open('rb') as file:
         return pickle.load(file)
 
 

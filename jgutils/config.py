@@ -15,3 +15,8 @@ IS_REMOTE = IS_LAMBDA or IS_GITHUB or IS_LINUX
 
 p_proj = Path(__file__).parent  # jambot (python module)
 p_root = p_proj.parent  # root folter
+
+# set paths for secrets
+# p_resource = p_proj / '_resources'
+# p_secret = p_resource / 'secrets'
+# os.environ['P_SECRET'] = str(p_secret)

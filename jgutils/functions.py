@@ -2,14 +2,42 @@ import json
 import re
 from collections.abc import Iterable
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 
 import yaml
 
+if TYPE_CHECKING:
+    from jgutils.typing import Listable
+
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
 T = TypeVar('T')
+
+
+def as_list(items: 'Listable[T] | None') -> list[T]:
+    """Convert single item or list/tuple of items to list
+    - if items is None, return empty list
+
+    Parameters
+    ----------
+    items : Listable[T]
+
+    Returns
+    -------
+    list[T]
+    """
+    if items is None:
+        return []
+
+    if not isinstance(items, list):
+        if isinstance(items, tuple):
+            items = list(items)
+        else:
+            items = [items]
+
+    return items
 
 
 def flatten_list_list(lst: Iterable[list]) -> list:
@@ -27,8 +55,8 @@ def flatten_list_list(lst: Iterable[list]) -> list:
     return [item for sublist in lst for item in sublist]
 
 
-def safe_append(lst: list, item: list | Any) -> None:
-    """safely append or extend to list
+def safe_append(lst: list, item: list | Any) -> None:  # noqa: ANN401
+    """Safely append or extend to list
 
     Parameters
     ----------
@@ -41,6 +69,7 @@ def safe_append(lst: list, item: list | Any) -> None:
         lst.extend(item)
     else:
         lst.append(item)
+
 
 
 def inverse(m: dict) -> dict:
@@ -67,7 +96,7 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
         'Key 2: value 2"
     """
 
-    def _bold_keys(m):
+    def _bold_keys(m: dict) -> dict:
         """Recursively bold all keys in dict"""
         if isinstance(m, dict):
             return {f'**{k}**': _bold_keys(v) for k, v in m.items()}
@@ -97,7 +126,7 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
     # s = re.sub(r'(\n\s+)(\n)', r'\2', s)
 
     if prnt:
-        print(s)
+        print(s)  # noqa: T201
     else:
         return s
 
@@ -145,7 +174,7 @@ def check_path(p: Path | str) -> Path:
     return p
 
 
-def load_yaml(p: Path) -> Any:
+def load_yaml(p: Path) -> Any:  # noqa: ANN401
     """Load yaml from file
 
     Parameters

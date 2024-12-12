@@ -7,7 +7,6 @@ import traceback
 from logging.handlers import RotatingFileHandler
 
 from jgutils.config import IS_REMOTE
-from jgutils.typing import StrNone
 
 try:
     import colored_traceback
@@ -54,10 +53,10 @@ class ColoredFormatter(Formatter):
         # always add log_color before format
         fmt = f'%(log_color)s{fmt}'
 
-        super().__init__(fmt, log_colors=log_colors, *args, **kw)
+        super().__init__(fmt, *args, log_colors=log_colors, **kw)
         self.colorizer = Colorizer(style='jayme')
 
-    def colorize_traceback(self, type, value, tb) -> str:
+    def colorize_traceback(self, type, value, tb) -> str:  # noqa: ANN001
         """
         Copied from colored_traceback Colorizer
         - just return and print to io instead of write to stderr so logging message prints first
@@ -66,12 +65,11 @@ class ColoredFormatter(Formatter):
         # import pygments.lexers
         tb_text = ''.join(traceback.format_exception(type, value, tb))
         lexer = pygments.lexers.get_lexer_by_name('pytb', stripall=True)
-        tb_colored = pygments.highlight(
+        return pygments.highlight(
             tb_text, lexer, self.colorizer.formatter)
         # self.stream.write(tb_colored)
-        return tb_colored
 
-    def formatException(self, ei) -> str:
+    def formatException(self, ei) -> str:  # noqa: ANN001, N802
         sio = io.StringIO()
 
         try:
@@ -88,7 +86,7 @@ class ColoredFormatter(Formatter):
 
         return s
 
-    def formatMessage(self, record: logging.LogRecord) -> str:
+    def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
         message = super().formatMessage(record)
         return highlight_filepath(message)
 
@@ -118,7 +116,7 @@ class CustomLogger(logging.Logger):
         # NOTE need to propagate for sentry, but don't want for aws
         # self.propagate = False
 
-    def error(self, msg: StrNone = None, *args, **kwargs) -> None:
+    def error(self, msg: str | None = None, *args, **kwargs) -> None:
         """Send error to slack channel
         """
         if IS_REMOTE:
@@ -209,7 +207,7 @@ sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(stream_formatter)
 
 # set file logger if path set and not azure
-log_path = os.getenv('file_log_path', None)
+log_path = os.getenv('file_log_path', None)  # noqa: SIM112
 fh = None
 
 if not log_path is None and not IS_REMOTE:
@@ -286,20 +284,3 @@ def highlight_filepath(s: str, color: str = 'blue') -> str:
     # stop at first backslash \ (color code)
     expr = r'(\S*\/.*\/[^\\]*?(?:.*\.\w{1,10}|(?=\s)|.*\/))'
     return re.sub(expr, f'{palette[color]}\\1{reset}', str(s))
-
-
-def get_stacktrace() -> str:
-    return '\n'.join(traceback.format_stack()[:-1])  # remove this function
-
-
-def save_stacktrace(fname: str = 'traceback') -> None:
-    tb_text = get_stacktrace()
-    with open(f'{fname}.txt', 'w') as file:
-        file.write(tb_text)
-
-
-def print_stacktrace():
-    colorizer = Colorizer(style='jayme')
-    lexer = pygments.lexers.get_lexer_by_name('pytb', stripall=True)
-    tb_colored = pygments.highlight(get_stacktrace(), lexer, colorizer.formatter)
-    print(tb_colored)
