@@ -1,45 +1,15 @@
 import json
 import re
-import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
-from typing import Iterable
-from typing import Optional
 from typing import TypeVar
-from typing import Union
 
 import yaml
-
-from jgutils.typing import DictAny
-from jgutils.typing import Listable
 
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
 T = TypeVar('T')
-
-
-def as_list(items: Optional[Listable[T]]) -> list[T]:
-    """Convert single item or list/tuple of items to list
-    - if items is None, return empty list
-
-    Parameters
-    ----------
-    items : Listable[T]
-
-    Returns
-    -------
-    list[T]
-    """
-    if items is None:
-        return []
-
-    if not isinstance(items, list):
-        if isinstance(items, tuple):
-            items = list(items)
-        else:
-            items = [items]
-
-    return items
 
 
 def flatten_list_list(lst: Iterable[list]) -> list:
@@ -57,14 +27,14 @@ def flatten_list_list(lst: Iterable[list]) -> list:
     return [item for sublist in lst for item in sublist]
 
 
-def safe_append(lst: list, item: Union[list, Any]) -> None:
+def safe_append(lst: list, item: list | Any) -> None:
     """safely append or extend to list
 
     Parameters
     ----------
     lst : list
         list to append/extend on
-    item : Union[list, Any]
+    item : list | Any
         item(s) to append/extend
     """
     if isinstance(item, list):
@@ -73,41 +43,12 @@ def safe_append(lst: list, item: Union[list, Any]) -> None:
         lst.append(item)
 
 
-def set_self(exclude: Optional[Union[tuple, str]] = None, include: Optional[DictAny] = None):
-    """Convenience func to assign an object's func's local vars to self"""
-    fr = sys._getframe(1)
-    # code = fr.f_code
-    m = fr.f_locals
-    obj = m.pop('self')
-
-    # args = code.co_varnames[:code.co_argcount + code.co_kwonlyargcount]
-    # obj = fr.f_locals[args[0]]  # self
-
-    # ns = getattr(obj, '__slots__', args[1:])  # type: ignore
-    # m = {n: fr.f_locals[n] for n in ns}  # vars() dict, excluding self
-
-    if include:
-        m |= include
-
-    if not isinstance(exclude, tuple):
-        if exclude is None:
-            exclude = ()
-
-        exclude = (exclude,)
-
-    exclude += SELF_EXCLUDE  # always exclude class
-
-    for k, v in m.items():
-        if not k in exclude:
-            setattr(obj, k, v)
-
-
 def inverse(m: dict) -> dict:
     """Return inverse of dict"""
     return {v: k for k, v in m.items()}
 
 
-def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool = False) -> Optional[str]:
+def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool = False) -> str | None:
     """Print pretty dict converted to newlines
     Paramaters
     ----
@@ -161,17 +102,17 @@ def pretty_dict(m: dict, html: bool = False, prnt: bool = True, bold_keys: bool 
         return s
 
 
-def nested_dict_update(m1: DictAny, m2: DictAny) -> DictAny:
+def nested_dict_update(m1: dict, m2: dict) -> dict:
     """Nested update dict m1 with keys/vals from m2
 
     Parameters
     ----------
-    m1 : DictAny
-    m2 : DictAny
+    m1 : dict
+    m2 : dict
 
     Returns
     -------
-    DictAny
+    dict
         updated dict
     """
     if not isinstance(m1, dict) or not isinstance(m2, dict):
@@ -183,7 +124,7 @@ def nested_dict_update(m1: DictAny, m2: DictAny) -> DictAny:
         return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}
 
 
-def check_path(p: Union[Path, str]) -> Path:
+def check_path(p: Path | str) -> Path:
     """Create path if doesn't exist
 
     Returns
@@ -228,7 +169,7 @@ def write_yaml(p: Path, data: dict):
     ----------
     p : Path
         Path to write to
-    data : DictAny
+    data : dict
         Data to write
     """
     p = check_path(p)

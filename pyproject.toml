@@ -52,4 +52,90 @@ force_single_line = true
 
 [tool.ruff]
 line-length = 120
-ignore = ["E713", "E714", "E722", "E731", "F405", "F841"]
+target-version = "py311"
+exclude = [
+    "docs/*",
+    "report",
+    "archive",
+    "build",
+    "dist",
+    "pyu-data",
+    "SQL",
+    "working",
+    ".python_packages/**/*",
+]
+select = [
+    "E",
+    "F",
+    # "B",
+    # "D",
+    # "N",
+    "UP",
+    "PTH",
+]
+ignore = [
+    "E713",
+    "E714",
+    "E722",
+    "E731",
+    "F405",
+    "F841",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D200",
+    "D202",
+    "D204",
+    "D205",
+    "D301",
+    "D400",
+    "D401",
+    "D415",
+    "ANN101",
+    "ANN102",
+    "ANN002",
+    "ANN003",
+    "RET503",
+    "RET505",
+    "PD901",
+    "PLR5501",
+    "PLR2004",
+    "PGH001",
+    "N817",
+    "SIM201",
+    "SIM118",
+    "Q003",
+    "C408",
+    "TRY003",
+    "TRY201",
+    "TRY300",
+    "TRY400",
+    "DJ001",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+exclude = []
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true
+exempt-modules = ["shelton.typing"]
+
+[tool.ruff.flake8-annotations]
+suppress-none-returning = true
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.pylint]
+max-args = 6
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+force-single-line = true

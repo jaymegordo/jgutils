@@ -2,18 +2,16 @@
 Pandas/DataFrame utils
 """
 import re
+from collections.abc import Iterable
 from datetime import datetime as dt
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Iterable
 from typing import TypeVar
-from typing import Union
 from typing import overload
 
 import numpy as np
 import pandas as pd
 
-from jgutils import functions as f
 from jgutils import utils as utl
 from jgutils.logger import get_log
 from jgutils.typing import Listable
@@ -64,7 +62,7 @@ def select_cols(df: pd.DataFrame, expr: str = '.', include: list = None) -> pd.D
 
     # include other cols
     if not include is None:
-        include = f.as_list(include)
+        include = utl.as_list(include)
         cols += include
 
     return df[cols]
@@ -113,7 +111,7 @@ def safe_drop(
     if not do:
         return df
 
-    cols = [c for c in f.as_list(cols) if c in df.columns]
+    cols = [c for c in utl.as_list(cols) if c in df.columns]
     return df.drop(columns=cols)
 
 
@@ -212,14 +210,14 @@ def left_merge(df: pd.DataFrame, df_right: pd.DataFrame) -> pd.DataFrame:
             right_index=True)
 
 
-def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: Union[str, type]) -> pd.DataFrame:
+def convert_dtypes(df: pd.DataFrame, cols: list[str], dtype: str | type) -> pd.DataFrame:
     """Safe convert cols to dtype
 
     Parameters
     ----------
     df : pd.DataFrame
     cols : list[str]
-    _type : Union[str, type]
+    dtype : str | type
         dtype to convert to
 
     Returns
@@ -297,21 +295,21 @@ def lower_cols(df: list[str]) -> list[str]:
 
 
 def lower_cols(
-    df: Union[pd.DataFrame, list[str]],
+    df: pd.DataFrame | list[str],
     title: bool = False
-) -> Union[pd.DataFrame, list[str]]:
+) -> pd.DataFrame | list[str]:
     """Convert df columns to snake case and remove bad characters
 
     Parameters
     ----------
-    df : Union[pd.DataFrame, list]
+    df : pd.DataFrame | list[str]
         dataframe or list of strings
     title : bool, optional
         convert back to title case, by default False
 
     Returns
     -------
-    Union[pd.DataFrame, list]
+    pd.DataFrame | list[str]
     """
     is_list = False
 
@@ -344,7 +342,7 @@ def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
     pd.DataFrame
     """
     m_cols = {col: lambda df, col=col: df[col].apply(
-        to_snake) for col in f.as_list(cols)}
+        to_snake) for col in utl.as_list(cols)}
     return df.assign(**m_cols)
 
 
@@ -396,7 +394,7 @@ def reorder_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
 
 
 def terminal_df(
-        df: Union[pd.DataFrame, 'Styler'],
+        df: 'pd.DataFrame | Styler',
         date_only: bool = True,
         show_na: bool = False,
         pad: bool = False,
@@ -405,7 +403,7 @@ def terminal_df(
 
     Parameters
     ----------
-    df : Union[pd.DataFrame, Styler]
+    df : pd.DataFrame | Styler
         df or styler object
     date_only : bool, optional
         truncate datetime to date only, by default True
@@ -480,7 +478,7 @@ def minmax_scale(s: pd.Series, feature_range=(0, 1)) -> np.ndarray:
     return np.interp(s, (s.min(), s.max()), feature_range)
 
 
-def split(df: pd.DataFrame, target: Union[list[str], str] = 'target') -> tuple[pd.DataFrame, pd.Series]:
+def split(df: pd.DataFrame, target: list[str] | str = 'target') -> tuple[pd.DataFrame, pd.Series]:
     """Split off target col to make X and y"""
     if isinstance(target, list) and len(target) == 1:
         target = target[0]
@@ -631,6 +629,7 @@ def expand_period_index(
     return df \
         .merge(pd.DataFrame(index=idx), how='right', left_index=True, right_index=True) \
         .rename_axis(idx_name)
+
 
 def date_range_freq(freq: str) -> str:
     """Convert old freq eg M to non-deprecated freq eg ME"""

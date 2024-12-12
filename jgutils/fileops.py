@@ -4,10 +4,9 @@ from datetime import datetime as dt
 from datetime import timedelta as delta
 from pathlib import Path
 from typing import Any
-from typing import Union
 
 
-def check_path(p: Union[Path, str]) -> Path:
+def check_path(p: Path | str) -> Path:
     """Create path if doesn't exist
 
     Returns

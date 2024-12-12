@@ -3,8 +3,7 @@ from datetime import date
 from datetime import datetime as dt
 from pathlib import Path
 from typing import Any
-from typing import Iterable
-from typing import Union
+from collections.abc import Iterable
 from typing import overload
 
 import pandas as pd
@@ -18,7 +17,7 @@ warnings.filterwarnings(
     'ignore', message='Discarding nonzero nanoseconds in conversion.')
 
 
-def check_path(p: Union[Path, str], force_file: bool = False) -> Path:
+def check_path(p: Path | str, force_file: bool = False) -> Path:
     """Create path if doesn't exist
 
     Parameters
@@ -83,8 +82,8 @@ def as_list(items: None) -> list[Any]:
 
 
 def as_list(
-        items: Union[Listable[T], dict[Any, Any], str, None]
-) -> Union[list[T], list[tuple[Any, Any]], list[str], list[Any]]:
+        items: Listable[T] | dict[Any, Any] | str | None
+) -> list[T] | list[tuple[Any, Any]] | list[str] | list[Any]:
     """Convert single item or iterable of items to list
     - if items is None, return empty list
 
