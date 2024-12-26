@@ -5,8 +5,13 @@ import re
 import sys
 import traceback
 from logging.handlers import RotatingFileHandler
+from typing import Any
+
+import sentry_sdk
 
 from jgutils.config import IS_REMOTE
+from jgutils.errors import SENTRY_INTEGRATION
+from jgutils.errors import CustomSentryIntegration
 
 try:
     import colored_traceback
@@ -105,6 +110,7 @@ class ColoredFormatter(Formatter):
         return s
 
 
+
 class CustomLogger(logging.Logger):
     """Custom logger to send error logs to slack channel
     """
@@ -113,18 +119,91 @@ class CustomLogger(logging.Logger):
         super().__init__(name, *args, **kwargs)
 
         # this prevents duplicate outputs (eg for pytest and on aws lambda)
-        # NOTE need to propagate for sentry, but don't want for aws
-        # self.propagate = False
+        # TODO this leaves duplicate output on lambda logs, would be nice to fix to improve readability there
+        # from config import IS_REMOTE
+        # if not IS_REMOTE:
+        #     self.propagate = False  # need to allow propagation for sentry to captuer log.error
 
-    def error(self, msg: str | None = None, *args, **kwargs) -> None:
-        """Send error to slack channel
+    def error(self, msg: str | None = None, *args, send_sentry: bool = True, **kw) -> None:
+        """Send error to slack channel then log error as normal
+
+        Parameters
+        ----------
+        send_sentry : bool, optional
+            send error to sentry, by default True
         """
-        if IS_REMOTE:
-            from jambot.comm import send_error
-            send_error(msg=msg)
 
-        # kwargs['exc_info'] = True  # not sure why this causes error in IPYthon now
-        super().error(msg, *args, **kwargs)
+        kw.setdefault('extra', {}).update({'send_sentry': send_sentry})
+
+        super().error(msg, *args, **kw)
+
+    def _get_sentry_integration(self) -> 'CustomSentryIntegration | None':
+        return sentry_sdk.Hub.current.get_integration(SENTRY_INTEGRATION)
+
+    def _set_sentry(self, data_type: str, data: str | dict, value: Any = None) -> None:  # noqa: ANN401
+        """Helper func to set either data or tag on sentry error
+
+        Parameters
+        ----------
+        data_type : str
+            either 'data' or 'tag'
+        data : str | dict
+            data to set
+        value : Any, optional
+            value to set, by default None
+        """
+        if not data_type in ('data', 'tag'):
+            raise ValueError(f'data_type must be "data" or "tag", got "{data_type}"')
+
+        if integration := self._get_sentry_integration():
+
+            # if data is a string, convert to dict with value
+            if isinstance(data, str):
+                data = {data: value}
+
+            # pass to either add_custom_data or add_custom_tag
+            func = {
+                'data': integration.add_custom_data,
+                'tag': integration.add_custom_tag}[data_type]  # type: Callable[[str, Any], None]
+
+            for key, value in data.items():
+                func(key, value)
+
+    def set_sentry_data(self, data: str | dict, value: Any = None) -> None:  # noqa: ANN401
+        """Function to add custom data to the Sentry error.
+
+        Parameters
+        ----------
+        key : str | dict
+            str as key, or dict of key/value pairs to add to sentry error
+        value : Any, optional
+            value to add to sentry error
+
+        Examples
+        --------
+        >>> from jgutils.logger import get_log
+        >>> log = get_log(__name__)
+        >>> log.set_sentry_data('thing', 123)
+        """
+        self._set_sentry('data', data, value)
+
+    def set_sentry_tag(self, data: str | dict, value: Any = None) -> None:  # noqa: ANN401
+        """Function to add custom tag to the Sentry error.
+
+        Parameters
+        ----------
+        key : str | dict
+            str as key, or dict of key/value pairs to add to sentry error
+        value : Any, optional
+            value to add to sentry error
+
+        Examples
+        --------
+        >>> from jgutils.logger import get_log
+        >>> log = get_log(__name__)
+        >>> log.set_sentry_tag('user', User.objects.get(id=1))
+        """
+        self._set_sentry('tag', data, value)
 
 
 class Loggable():

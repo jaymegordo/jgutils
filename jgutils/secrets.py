@@ -59,7 +59,11 @@ class SecretsManager():
     p_encrypted = p_full / 'encrypted'
     p_unencrypt = p_full / 'unencrypted'
 
-    p_key = p_secret / 'jg.key'
+    key_name = os.getenv('KEY_NAME', None)
+    if key_name is None:
+        raise RuntimeError(f'KEY_NAME not set! KEY_NAME: {key_name}')
+
+    p_key = p_secret / key_name
 
     # prefixes for encrypting/decrypting partial yaml keys
     prefix_to_encrypt = '_'
@@ -295,7 +299,7 @@ class SecretsManager():
         """Get unique path for filename in full/partial folder
         - NOTE names must be unique across both folders
         """
-        paths = (self.p_partial, self.p_encrypted)
+        paths = (self.p_partial, self.p_encrypted, self.p_full)
 
         # create dict of name: path
         data = {}
@@ -310,7 +314,7 @@ class SecretsManager():
 
         return data[name]
 
-    def load(self, name: str) -> Any:  # noqa: ANN401
+    def load(self, name: str, p: Path | None = None) -> Any:  # noqa: ANN401
         """Get file from secrets folder by name and decrypt
 
         Parameters
@@ -323,7 +327,9 @@ class SecretsManager():
         Any
             Decrypted file
         """
-        p = self._get_path(name)
+        if p is None:
+            p = self._get_path(name)
+
         ext = p.suffix
 
         if self._is_full(p):

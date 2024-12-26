@@ -33,7 +33,7 @@ class BlobStorage():
             container to use by default, by default 'jambot-app'
         """
         # TODO fix this
-        creds = SecretsManager('azure_blob.yaml').load()
+        creds = SecretsManager().load('azure_blob.yaml')
         self.client = BlobServiceClient.from_connection_string(
             creds['connection_string'])
 
