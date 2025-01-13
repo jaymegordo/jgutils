@@ -1,6 +1,5 @@
 import re
 from abc import ABCMeta
-from typing import Union
 
 
 class PrettyDisplayItem(metaclass=ABCMeta):  # noqa: B024
@@ -49,7 +48,7 @@ class PrettyDict(PrettyDisplayItem):
         """
         Parameters
         ----------
-        m : Union[dict, list[dict]]
+        m : dict | list[dict]
             dict or list of dicts to display
         param : str, optional
             beginning string that gets multiplied at each depth level, by default '  '
@@ -84,7 +83,7 @@ class PrettyDict(PrettyDisplayItem):
 
         Parameters
         ----------
-        m : Union[dict, list[dict]]
+        m : dict | list[dict]
             nested dict or list of dicts to pretty print
         depth : int, optional
             depth of current dict, default 0
@@ -144,7 +143,7 @@ class PrettyString(PrettyDisplayItem):
             s: str,
             color: str = 'green',
             prehighlight: bool = False,
-            expr: Union[str, 're.Pattern[str]'] | None = None):
+            expr: str | re.Pattern[str] | None = None):
         """
         Parameters
         ----------
@@ -154,7 +153,7 @@ class PrettyString(PrettyDisplayItem):
             color to use, default 'green'
         prehighlight : bool, optional
             string already contains color codes, just display it, default False
-        expr : Optional[Union[str, re.Pattern[str]]], optional
+        expr : str | re.Pattern[str], optional
             regex expression to highlight specific substrings, default None
         """
         self.s = s
