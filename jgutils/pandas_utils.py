@@ -4,6 +4,7 @@ Pandas/DataFrame utils
 import re
 from collections.abc import Iterable
 from datetime import datetime as dt
+from io import StringIO
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
@@ -16,7 +17,7 @@ from jgutils import utils as utl
 from jgutils.logger import get_log
 
 if TYPE_CHECKING:
-    from pandas.io.formats.style import Styler
+    from jgutils.styler_type import Styler
 
     from jgutils.typing import Listable
 
@@ -421,7 +422,7 @@ def terminal_df(
         html = style.hide(axis='index').to_html()
 
         # NOTE cant set back to orig types with .astype(dtypeps)
-        df = pd.read_html(html)[0] \
+        df = pd.read_html(StringIO(html))[0] \
             .set_index(index)
 
     # truncate datetime to date only

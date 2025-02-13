@@ -26,7 +26,7 @@ from jgutils import re_utils as ru
 from jgutils.pretty import PrettyDict as PD
 
 if TYPE_CHECKING:
-    from pandas.io.formats.style import Styler
+    from jgutils.styler_type import Styler
 
 
 _cmap = diverging_palette(240, 10, sep=10, n=21, as_cmap=True, center='dark')
@@ -113,7 +113,7 @@ def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -
     exclude = ('profile', 'exec')
 
     data = []
-    for k, v in stats.stats.items():
+    for k, v in stats.stats.items(): # type: ignore
 
         # remove long filename prefixes
         sub_vals = [
