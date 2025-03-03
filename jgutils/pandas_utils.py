@@ -18,7 +18,6 @@ from jgutils.logger import get_log
 
 if TYPE_CHECKING:
     from jgutils.styler_type import Styler
-
     from jgutils.typing import Listable
 
 log = get_log(__name__)
@@ -531,7 +530,7 @@ def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') -> pd.DataFrame:
+def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtypes: 'Listable[str]' = 'object') -> pd.DataFrame:
     """Fill na with fill_val for given dtype
 
     Parameters
@@ -539,14 +538,15 @@ def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtype: str = 'object') ->
     df : pd.DataFrame
     fill_val : str, optional
         value to fill na with, by default ''
-    dtype : str, optional
+    dtypes : Listable[str], optional
         dtype to fill na for, by default 'object'
 
     Returns
     -------
     pd.DataFrame
     """
-    return df.pipe(lambda df: df.fillna({c: fill_val for c in df.select_dtypes(dtype).columns}))
+    dtypes = utl.as_list(dtypes)
+    return df.pipe(lambda df: df.fillna({c: fill_val for c in df.select_dtypes(dtypes).columns}))
 
 
 def select_by_multiindex(
