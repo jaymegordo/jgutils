@@ -5,13 +5,10 @@ import re
 import sys
 import traceback
 from logging.handlers import RotatingFileHandler
+from typing import TYPE_CHECKING
 from typing import Any
 
-import sentry_sdk
-
 from jgutils.config import IS_REMOTE
-from jgutils.errors import SENTRY_INTEGRATION
-from jgutils.errors import CustomSentryIntegration
 
 try:
     import colored_traceback
@@ -25,6 +22,11 @@ try:
 except ModuleNotFoundError:
     # running on azure
     Formatter = logging.Formatter
+
+if TYPE_CHECKING:
+    from collections.abc import Callable  # noqa: F401
+
+    from jgutils.errors import CustomSentryIntegration
 
 # simple colors
 _palette = dict(
@@ -110,7 +112,6 @@ class ColoredFormatter(Formatter):
         return s
 
 
-
 class CustomLogger(logging.Logger):
     """Custom logger to send error logs to slack channel
     """
@@ -138,6 +139,9 @@ class CustomLogger(logging.Logger):
         super().error(msg, *args, **kw)
 
     def _get_sentry_integration(self) -> 'CustomSentryIntegration | None':
+        import sentry_sdk
+
+        from jgutils.errors import SENTRY_INTEGRATION
         return sentry_sdk.Hub.current.get_integration(SENTRY_INTEGRATION)
 
     def _set_sentry(self, data_type: str, data: str | dict, value: Any = None) -> None:  # noqa: ANN401
@@ -153,7 +157,8 @@ class CustomLogger(logging.Logger):
             value to set, by default None
         """
         if not data_type in ('data', 'tag'):
-            raise ValueError(f'data_type must be "data" or "tag", got "{data_type}"')
+            raise ValueError(
+                f'data_type must be "data" or "tag", got "{data_type}"')
 
         if integration := self._get_sentry_integration():
 
