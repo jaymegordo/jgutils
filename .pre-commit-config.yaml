@@ -1,5 +1,5 @@
 # install both commit and push hooks with:
-# poetry run pre-commit install --hook-type pre-commit --hook-type pre-push
+# uv run --frozen pre-commit install --hook-type pre-commit --hook-type pre-push
 
 fail_fast: false # true makes it stop and not fix all errors in one run
 repos:
@@ -26,12 +26,12 @@ repos:
     hooks: 
       - id: ruff
         name: ruff
-        entry: poetry run ruff check
+        entry: uv run --frozen ruff check
         language: system
         types: [python]
     #   - id: pytest
     #     name: pytest
-    #     entry: poetry run pytest
+    #     entry: uv run --frozen pytest
     #     language: system
     #     types: [python]
     #     stages: [push] # only run pytest before push, not every commit
