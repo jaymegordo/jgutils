@@ -287,7 +287,8 @@ else:
 # Console/stream handler
 _fmt_stream = '%(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
 stream_formatter = StreamFormatter(_fmt_stream)
-sh = logging.StreamHandler(stream=sys.stdout)
+# In frozen apps where sys.stdout is None, use NullHandler to avoid conflicts with terminal
+sh = logging.NullHandler() if sys.stdout is None else logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(stream_formatter)
 
 # set file logger if path set and not azure
