@@ -166,7 +166,7 @@ def reduce_dtypes(df: pd.DataFrame, dtypes: dict) -> pd.DataFrame:
     """
     dtype_cols = {}
     for d_from, d_to in dtypes.items():
-        dtype_cols |= {c: d_to for c in df.select_dtypes(d_from).columns}
+        dtype_cols |= dict.fromkeys(df.select_dtypes(d_from).columns, d_to)
 
     return df.astype(dtype_cols)
 
@@ -546,7 +546,7 @@ def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtypes: 'Listable[str]' =
     pd.DataFrame
     """
     dtypes = utl.as_list(dtypes)
-    return df.pipe(lambda df: df.fillna({c: fill_val for c in df.select_dtypes(dtypes).columns}))
+    return df.pipe(lambda df: df.fillna(dict.fromkeys(df.select_dtypes(dtypes).columns, fill_val)))
 
 
 def select_by_multiindex(

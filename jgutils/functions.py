@@ -71,7 +71,6 @@ def safe_append(lst: list, item: list | Any) -> None:  # noqa: ANN401
         lst.append(item)
 
 
-
 def inverse(m: dict) -> dict:
     """Return inverse of dict"""
     return {v: k for k, v in m.items()}

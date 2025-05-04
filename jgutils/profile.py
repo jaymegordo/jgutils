@@ -113,7 +113,7 @@ def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -
     exclude = ('profile', 'exec')
 
     data = []
-    for k, v in stats.stats.items(): # type: ignore
+    for k, v in stats.stats.items():  # type: ignore
 
         # remove long filename prefixes
         sub_vals = [
@@ -164,7 +164,7 @@ def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -
     PD(m_result).display()
 
     # set column display formats
-    m_fmt = {k: '{:.03f}' for k in ('tot_time', 'cum_time', 'per_call')} | dict(n_calls='{:,.0f}')
+    m_fmt = dict.fromkeys(('tot_time', 'cum_time', 'per_call'), '{:.03f}') | dict(n_calls='{:,.0f}')
 
     return df.head(head).style \
         .pipe(
