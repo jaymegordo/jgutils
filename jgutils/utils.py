@@ -164,3 +164,19 @@ def format_d_rng(d_rng: tuple[dt | date, dt | date]) -> str:
         formatted date range
     """
     return f'{d_rng[0].strftime(tp.DATE_FMT)} - {d_rng[1].strftime(tp.DATE_FMT)}'
+
+
+def upper_dict(data: dict) -> dict:
+    """Convert all keys in a dictionary to uppercase.
+
+    Parameters
+    ----------
+    data : DictAny
+        The dictionary to convert.
+
+    Returns
+    -------
+    DictAny
+        A new dictionary with all keys in uppercase.
+    """
+    return {k.upper(): v for k, v in data.items()}

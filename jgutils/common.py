@@ -1,7 +1,12 @@
 from abc import ABCMeta
+from collections.abc import Callable
 from typing import Any
+from typing import Generic
+from typing import TypeVar
 
 from jgutils.pretty import PrettyString as PS
+
+T = TypeVar('T')
 
 
 class DictRepr(metaclass=ABCMeta):  # noqa: B024
@@ -63,3 +68,14 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
 
     def get(self, key: str, default: Any = None) -> Any:  # noqa: ANN401
         return self.to_dict().get(key, default)
+
+
+class classproperty(Generic[T]):  # noqa: N801
+    """Converts a method to a class property.
+    """
+
+    def __init__(self, f: Callable[..., T]):
+        self.fget = f
+
+    def __get__(self, instance: Any, owner: Any) -> T:  # noqa: ANN401
+        return self.fget(owner)
