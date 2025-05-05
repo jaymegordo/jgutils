@@ -2,42 +2,14 @@ import json
 import re
 from collections.abc import Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypeVar
 
 import yaml
 
-if TYPE_CHECKING:
-    from jgutils.typing import Listable
-
 SELF_EXCLUDE = ('__class__', 'args', 'kw', 'kwargs')
 
 T = TypeVar('T')
-
-
-def as_list(items: 'Listable[T] | None') -> list[T]:
-    """Convert single item or list/tuple of items to list
-    - if items is None, return empty list
-
-    Parameters
-    ----------
-    items : Listable[T]
-
-    Returns
-    -------
-    list[T]
-    """
-    if items is None:
-        return []
-
-    if not isinstance(items, list):
-        if isinstance(items, tuple):
-            items = list(items)
-        else:
-            items = [items]
-
-    return items
 
 
 def flatten_list_list(lst: Iterable[list]) -> list:
