@@ -15,7 +15,6 @@ from azure.storage.blob import ContainerClient
 from jgutils import fileops as fl
 from jgutils import functions as f
 from jgutils.logger import get_log
-from jgutils.secrets import SecretsManager
 
 log = get_log(__name__)
 
@@ -32,10 +31,11 @@ class BlobStorage():
         container : str, optional
             container to use by default, by default 'jambot-app'
         """
-        # TODO fix this
-        creds = SecretsManager().load('azure_blob.yaml')
-        self.client = BlobServiceClient.from_connection_string(
-            creds['connection_string'])
+        # HACK not great - dependent on smseventlog config now
+        from smseventlog.config import CONFIG
+        azure_creds = CONFIG['azure']
+        connection_string = azure_creds['connection_string']
+        self.client = BlobServiceClient.from_connection_string(connection_string)
 
         # pass in full dir, but only use name
         _p_local = None
@@ -97,8 +97,8 @@ class BlobStorage():
 
     def upload_dir(
             self,
-            p: Path = None,
-            container: str | ContainerClient = None,
+            p: Path | None = None,
+            container: str | ContainerClient | None = None,
             mirror: bool = True,
             match: str = '.') -> None:
         """Upload entire dir files to container
@@ -133,8 +133,8 @@ class BlobStorage():
 
     def download_dir(
             self,
-            p: Path = None,
-            container: str | ContainerClient = None,
+            p: Path | None = None,
+            container: str | ContainerClient | None = None,
             mirror: bool = True,
             match: str = '.') -> None:
         """Download entire container to local dir
