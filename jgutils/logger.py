@@ -20,7 +20,7 @@ try:
     colored_traceback.add_hook(style='jayme', always=True)
     Formatter = colorlog.ColoredFormatter
 except ModuleNotFoundError:
-    # running on azure
+    # running on remote
     Formatter = logging.Formatter
 
 if TYPE_CHECKING:
@@ -169,7 +169,8 @@ class CustomLogger(logging.Logger):
             # pass to either add_custom_data or add_custom_tag
             func = {
                 'data': integration.add_custom_data,
-                'tag': integration.add_custom_tag}[data_type]  # type: Callable[[str, Any], None]
+                # type: Callable[[str, Any], None]
+                'tag': integration.add_custom_tag}[data_type]
 
             for key, value in data.items():
                 func(key, value)
@@ -288,10 +289,11 @@ else:
 _fmt_stream = '%(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
 stream_formatter = StreamFormatter(_fmt_stream)
 # In frozen apps where sys.stdout is None, use NullHandler to avoid conflicts with terminal
-sh = logging.NullHandler() if sys.stdout is None else logging.StreamHandler(stream=sys.stdout)
+sh = logging.NullHandler() if sys.stdout is None else logging.StreamHandler(
+    stream=sys.stdout)
 sh.setFormatter(stream_formatter)
 
-# set file logger if path set and not azure
+# set file logger if path set and not remote
 log_path = os.getenv('file_log_path', None)  # noqa: SIM112
 fh = None
 
@@ -310,7 +312,6 @@ logging.setLoggerClass(CustomLogger)
 
 def get_log(name: str) -> logging.Logger:
     """Create logger object with predefined stream handler & formatting
-    - need to instantiate with logging.getLogger to inherit from azure's root logger
 
     Parameters
     ----------

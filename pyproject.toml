@@ -23,9 +23,6 @@ dev = [
 ]
 
 [project.optional-dependencies]
-azurestorage = [
-    "azure-storage-blob>=12.9.0",
-]
 colorlogging = [
     "colored-traceback==0.3.0",
     "colorlog>=6.6.0",
@@ -64,6 +61,38 @@ reportPrivateImportUsage = "information"
 reportUnusedExpression = "information"
 reportInvalidStringEscapeSequence = "information"
 reportSelfClsParameterName = "error"
+reportInvalidTypeForm = "information"
+reportMissingParameterType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "none"
+reportUnusedParameter = "none"
+reportUnsafeMultipleInheritance = "none"
+reportUnannotatedClassAttribute = "none"
+reportMissingTypeStubs = "none"
+reportUnknownVariableType = "none"
+reportAny = "none"
+reportImplicitOverride = "information"
+reportUnusedCallResult = "none"
+reportMissingTypeArgument = "none"
+reportUnknownLambdaType = "none"
+reportIncompatibleVariableOverride = "none"
+reportIncompatibleMethodOverride = "none"
+reportTypeCommentUsage = "none"
+reportExplicitAny = "none"
+reportUntypedBaseClass = "none"
+reportUnusedVariable = "information"
+reportUninitializedInstanceVariable = "none"
+reportDuplicateImport = "none"
+reportUnreachable = "none"
+reportImportCycles = "information"
+reportMissingSuperCall = "none"
+reportPossiblyUnboundVariable = "warning"
+reportUntypedFunctionDecorator = "none"
+reportConstantRedefinition = "none"
+reportPrivateUsage = "none"
+reportUnusedImport = "none"
+reportInconsistentConstructor = "none"
 
 [tool.ruff]
 cache-dir = "~/.cache/ruff"
