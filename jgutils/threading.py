@@ -1,4 +1,3 @@
-import contextlib
 import multiprocessing
 import threading
 import time
@@ -15,6 +14,7 @@ from typing import overload
 
 from joblib import Parallel
 from joblib import delayed
+from tqdm import tqdm
 
 from jgutils import config as cf
 from jgutils import utils as utl
@@ -24,8 +24,6 @@ from jgutils.logger import get_log
 if TYPE_CHECKING:
     from jgutils.typing import Listable
 
-with contextlib.suppress(ModuleNotFoundError):
-    from tqdm import tqdm
 
 
 log = get_log(__name__)
@@ -307,7 +305,7 @@ class ProgressParallel(Parallel):
 
         return cls(*args, **kw)
 
-    def __call__(self, *args, **kwargs) -> Generator[Any, None, None]:
+    def __call__(self, *args, **kwargs) -> Generator:
         if self._log:
             log.info(
                 f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')

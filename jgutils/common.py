@@ -47,7 +47,8 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
             m = {k: getattr(self, k) for k in m}
 
         if m:
-            data = ['{}={}'.format(k, PS(self.truncate(v), color='yellow')) for k, v in m.items()]
+            data = ['{}={}'.format(
+                k, PS(self.truncate(v), color='yellow')) for k, v in m.items()]
 
         return '<{}: {}>'.format(
             PS(self.__class__.__name__, color='blue'),

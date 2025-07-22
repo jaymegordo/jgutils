@@ -108,7 +108,9 @@ class PrettyDict(PrettyDisplayItem):
                 else:
                     # join list of dicts into single value
                     if isinstance(v, list | tuple):
-                        v = '\n' + '\n'.join([self.pretty_print(item, depth + 1) for item in v])
+                        v = '\n' + \
+                            '\n'.join([
+                                self.pretty_print(item, depth + 1) for item in v])
 
                     ret += f'{depth_indent}{lst[depth]}{k}{reset}: {v}\n'
 
@@ -210,7 +212,8 @@ class PrettyString(PrettyDisplayItem):
                 if not match_str.strip() == '':
                     # replace the match with the highlighted version, using the match start and end
                     color_replace = self._wrap_highlight(match_str)
-                    s = s[:match.start() + offset] + color_replace + s[match.end() + offset:]
+                    s = s[:match.start() + offset] + color_replace + \
+                        s[match.end() + offset:]
 
                     offset += len(color_replace) - len(match_str)
 

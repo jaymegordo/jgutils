@@ -41,7 +41,8 @@ class CustomSentryIntegration(Integration):
         # NOTE this doesn't work, sentry still filters the full list, but this gives a tiny bit more info
         max_len = self.MAX_STRING_LEN
         if isinstance(value, str) and len(value) > max_len:
-            value = [value[i:i + max_len] for i in range(0, len(value), max_len)]
+            value = [value[i:i + max_len]
+                     for i in range(0, len(value), max_len)]
 
         return value
 
@@ -73,7 +74,8 @@ class CustomSentryIntegration(Integration):
 
         @add_global_event_processor
         def event_processor(event: dict, hint: dict | None = None) -> dict:
-            integration = sentry_sdk.Hub.current.get_integration(SENTRY_INTEGRATION)
+            integration = sentry_sdk.Hub.current.get_integration(
+                SENTRY_INTEGRATION)
 
             if integration is not None:
                 integration._attach_custom_data_to_event(event)

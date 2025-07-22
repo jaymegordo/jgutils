@@ -614,7 +614,10 @@ def expand_period_index(
     )
 
     # create index from overall min/max dates in df
-    idx = pd.date_range(d_rng[0], d_rng[1], freq=date_range_freq(freq)).to_period()
+    idx = pd.date_range(
+        start=d_rng[0],
+        end=d_rng[1],
+        freq=date_range_freq(freq)).to_period()
 
     # create index with missing periods per period/group (eg Unit)
     if not group_col is None:

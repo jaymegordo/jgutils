@@ -1,12 +1,11 @@
 SHELL := /bin/bash
 code := jgutils
-include .vscode/.env
 
 .PHONY : format
-format:  ## autopep, isort, ruff
+format:  ## run autopep, ruff
 	@uv run --frozen autopep8 --recursive --in-place $(code)
-	@uv run --frozen isort $(code)
-	@uv run --frozen ruff check $(code)
+	@uv run --frozen ruff check $(code) --select I001 --fix --quiet
+	@uv run --frozen ruff check $(code) --quiet
 
 .PHONY : lint
 lint:  ## ruff linting
