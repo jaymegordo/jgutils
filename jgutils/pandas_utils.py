@@ -7,7 +7,6 @@ from datetime import datetime as dt
 from io import StringIO
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import TypeVar
 from typing import overload
 
 import numpy as np
@@ -21,8 +20,6 @@ if TYPE_CHECKING:
     from jgutils.typing import Listable
 
 log = get_log(__name__)
-
-TupleType = TypeVar('TupleType', bound=tuple[str, ...])
 
 
 def filter_df(dfall: pd.DataFrame, symbol: str) -> pd.DataFrame:
@@ -505,18 +502,18 @@ def index_date_from_int(df: pd.DataFrame, ts_col: str = 'timestamp') -> pd.DataF
         .set_index(idx_names)
 
 
-def get_unique_index(df: pd.DataFrame, cols: TupleType) -> list[TupleType]:
+def get_unique_index(df: pd.DataFrame, cols: tuple[str, ...]) -> list[tuple[str, ...]]:
     """Get list of unique index values for given cols
 
     Parameters
     ----------
     df : pd.DataFrame
-    cols : TupleType
+    cols : tuple[str, ...]
         list or tuple of cols to include
 
     Returns
     -------
-    list[TupleType]
+    list[tuple[str, ...]]
     """
     exclude = tuple([col for col in df.index.names if not col in cols])
     return df.index.droplevel(exclude).unique().tolist()

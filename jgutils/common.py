@@ -1,7 +1,6 @@
 from abc import ABCMeta
 from collections.abc import Callable
 from typing import Any
-from typing import Generic
 from typing import TypeVar
 
 from jgutils.pretty import PrettyString as PS
@@ -71,7 +70,7 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
         return self.to_dict().get(key, default)
 
 
-class classproperty(Generic[T]):  # noqa: N801
+class classproperty[T]:  # noqa: N801
     """Converts a method to a class property.
     """
 

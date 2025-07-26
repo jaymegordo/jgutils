@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from jgutils.typing import Listable
 
 
-
 log = get_log(__name__)
 
 
