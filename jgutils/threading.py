@@ -77,13 +77,13 @@ class ThreadManager():
             If dict_args is True, will assume each item is a dict of arguments to unpack.
         raise_errors : bool, optional
             Raise errors, or log.warning and continue, by default True
-        allowed_errors : Optional[Listable[type[Exception]]], optional
+        allowed_errors : Listable[type[Exception]] | None, optional
             List of errors to allow (if raise_errors is True), by default None
         warn_expected : bool, optional
             Show warning on expected errors, by default True
         dict_args : bool, optional
             If True, unpack items to func, else pass single in items as item to func
-        func_kw : Optional[dict], optional
+        func_kw : dict | None, optional
             Static keyword arguments to pass to func (if str func), by default None
         use_tqdm : bool, optional
             Use tqdm to show progress, by default True
