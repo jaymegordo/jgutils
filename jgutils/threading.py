@@ -58,6 +58,7 @@ class ThreadManager():
             func: Callable[..., Any],
             items: list[dict] | Iterable[Any],
             raise_errors: bool = True,
+            log_errors: bool = False,
             allowed_errors: 'Listable[type[Exception]] | None' = None,
             warn_expected: bool = True,
             dict_args: bool = True,
@@ -77,6 +78,8 @@ class ThreadManager():
             If dict_args is True, will assume each item is a dict of arguments to unpack.
         raise_errors : bool, optional
             Raise errors, or log.warning and continue, by default True
+        log_errors : bool, optional
+            Log errors, by default False
         allowed_errors : Listable[type[Exception]] | None, optional
             List of errors to allow (if raise_errors is True), by default None
         warn_expected : bool, optional
@@ -103,6 +106,7 @@ class ThreadManager():
 
         # TODO bit messy for now, combining native thread + Parallel/tqdm in one class
         self.raise_errors = raise_errors
+        self.log_errors = log_errors
         self.allowed_errors = utl.as_list(allowed_errors)
         self.warn_expected = warn_expected
         self.allowed_errors.append(ExpectedError)
@@ -197,17 +201,24 @@ class ThreadManager():
                 return func(*args, **kwargs)
             except Exception as e:
                 err_name = e.__class__.__name__
+                func_name = getattr(func, '__name__', repr(func))
 
                 if any(isinstance(e, err) for err in self.allowed_errors):
                     if self.warn_expected:
                         log.warning(f'[Expected Error: {err_name}] {e}')
                 elif self.raise_errors:
+                    max_len = 500
+                    err_msg = str(e)[:max_len]
                     log.warning(
-                        f'Failed: "{func.__name__}" with: args={args} kw={kwargs}')
+                        f'[{err_name}] Failed: "{func_name}" with: '
+                        + f'args={str(args)[:max_len]}, kw={str(kwargs)[:max_len]}, {err_msg}')
+
                     raise e
+
+                elif self.log_errors:
+                    log.error(f'[{err_name}] Thread Error "{func_name}": {e}')
                 else:
-                    log.warning(
-                        f'[{err_name}] Error calling "{func.__name__}": {e}')
+                    log.warning(f'[{err_name}] Thread Error "{func_name}": {e}')
 
         return wrapper
 
