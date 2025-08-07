@@ -1,3 +1,4 @@
+import time
 import warnings
 from collections.abc import Iterable
 from datetime import date
@@ -180,3 +181,57 @@ def upper_dict(data: dict) -> dict:
         A new dictionary with all keys in uppercase.
     """
     return {k.upper(): v for k, v in data.items()}
+
+
+def time_taken(start: float, round: int = 2) -> str:
+    """Get time taken from start time in minutes and seconds if over 60 seconds
+
+    Parameters
+    ----------
+    start : float
+        start time in seconds
+    round : int, optional
+        round seconds to this decimal, by default 2
+    """
+    elapsed_time = time.time() - start
+    if elapsed_time < 60:
+        return f'{elapsed_time:.{round}f}s'
+    else:
+        minutes, seconds = divmod(elapsed_time, 60)
+        return f'{int(minutes)}m {int(seconds)}s'
+
+
+def size_readable(nbytes: int) -> str:
+    """Return human readable file size string from bytes"""
+    suffixes = ('B', 'KB', 'MB', 'GB', 'TB', 'PB')
+    i = 0
+    while nbytes >= 1024 and i < len(suffixes) - 1:
+        nbytes /= 1024.
+        i += 1
+
+    f = f'{nbytes:.2f}'.rstrip('0').rstrip('.')
+    return f'{f} {suffixes[i]}'
+
+
+def calc_size(p: Path, as_str: bool = True) -> int | str:
+    """Calculate size of directory and all subdirs
+
+    Parameters
+    ----------
+    p : Path
+    as_str : bool, optional
+        return raw float or nicely formatted string, default False
+
+    Returns
+    -------
+    int | string
+        size of folder
+    """
+    if p.is_file():
+        _size = p.stat().st_size
+    elif p.is_dir():
+        _size = sum(f.stat().st_size for f in p.glob('**/*') if f.is_file())
+    else:
+        raise ValueError(f'Path {p} is not a file or directory')
+
+    return size_readable(_size) if as_str else _size
