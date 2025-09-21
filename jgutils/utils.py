@@ -1,6 +1,7 @@
 import time
 import warnings
 from collections.abc import Iterable
+from datetime import UTC
 from datetime import date
 from datetime import datetime as dt
 from pathlib import Path
@@ -66,11 +67,6 @@ def flatten_list_list(lst: list[list['T']]) -> list['T']:
 
 
 @overload
-def as_list(items: 'Listable[T]') -> list['T']:
-    ...
-
-
-@overload
 def as_list(items: dict[Any, Any]) -> list[tuple[Any, Any]]:
     ...
 
@@ -85,8 +81,13 @@ def as_list(items: None) -> list[Any]:
     ...
 
 
+@overload
+def as_list(items: 'Listable[T]') -> list['T']:
+    ...
+
+
 def as_list(
-        items: tp.Listable['T'] | dict[Any, Any] | str | None
+        items: 'Listable[T] | dict[Any, Any] | str | None'
 ) -> list['T'] | list[tuple[Any, Any]] | list[str] | list[Any]:
     """Convert single item or iterable of items to list
     - if items is None, return empty list
@@ -98,7 +99,7 @@ def as_list(
 
     Returns
     -------
-    Union[list[T], list[tuple[Any, Any]], list[str], list[Any]]
+    Union[list[T], list[Tuple[Any, Any]], list[str], list[Any]]
         list of items
 
     Examples
@@ -235,3 +236,19 @@ def calc_size(p: Path, as_str: bool = True) -> int | str:
         raise ValueError(f'Path {p} is not a file or directory')
 
     return size_readable(_size) if as_str else _size
+
+
+def file_modified_dt(p: Path) -> dt:
+    """Get file modified date
+
+    Parameters
+    ----------
+    p : Path
+        file to check
+
+    Returns
+    -------
+    dt
+        date file modified
+    """
+    return dt.fromtimestamp(p.stat().st_mtime, tz=UTC)
