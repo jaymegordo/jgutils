@@ -1,8 +1,10 @@
+import contextlib
 import re
 from abc import ABCMeta
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Union
+from typing import override
 
 from pydantic import BaseModel
 
@@ -31,6 +33,7 @@ class PrettyDisplayItem(metaclass=ABCMeta):  # noqa: B024
         """Get color for index i"""
         return cls.colors[i % len(cls.colors)]
 
+    @override
     def __repr__(self) -> str:
         return self.__str__()
 
@@ -80,8 +83,12 @@ class PrettyDict(PrettyDisplayItem):
         self.ansi_codes_list = list(self.ansi_codes.values())[:-1] * 3
 
         # don't highlight keys, just use structural formatting only
-        from jambot.config import IS_REMOTE
-        if not color or IS_REMOTE:
+        is_remote = False
+        with contextlib.suppress(ModuleNotFoundError):
+            from jambot.config import IS_REMOTE
+            is_remote = IS_REMOTE
+
+        if not color or is_remote:
             self.ansi_codes_list = [''] * len(self.ansi_codes_list)
             self.reset = ''
         else:
@@ -120,6 +127,7 @@ class PrettyDict(PrettyDisplayItem):
 
         return cls(data, **kw)
 
+    @override
     def __str__(self) -> str:
         return self.pretty_print(self.m)
 
@@ -256,6 +264,7 @@ class PrettyString(PrettyDisplayItem):
 
         self.expr = expr  # type: re.Pattern[str] | None
 
+    @override
     def __str__(self) -> str:
         if self.prehighlight:
             return self.s
@@ -287,9 +296,10 @@ class PrettyString(PrettyDisplayItem):
         str
             string with ansi escape code colors
         """
-        from jambot.config import IS_REMOTE
-        if IS_REMOTE:
-            return str(s)
+        with contextlib.suppress(ModuleNotFoundError):
+            from jambot.config import IS_REMOTE
+            if IS_REMOTE:
+                return str(s)
 
         # highlight specific substrings based on regex expression
         if not self.expr is None:

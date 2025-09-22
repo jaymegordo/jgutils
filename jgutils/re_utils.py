@@ -196,3 +196,53 @@ def sub_multi(text: str, sub_vals: list[tuple[str, str]]) -> str:
         text = re.sub(sub_val[0], sub_val[1], text)
 
     return text
+
+
+def remove_bad_chars(w: str) -> str:
+    """Remove any bad chars " : < > | . \\ / * ? in string to make safe for filepaths"""
+    s = re.sub(r'[",:<>|.\\\/\*\?]', '', str(w))
+
+    # replace & with 'and'
+    return re.sub(r'&', 'and', s)
+
+
+def to_title(s: str, max_upper: int = -1) -> str:
+    """Convert from snake_case cols to Title Case or UPPER
+
+    Parameters
+    ----------
+    s : str
+        string to convert to title case
+    max_upper : int, optional
+        convert strings less than or equal to this lengh to upper, by default 10_000
+
+    Returns
+    -------
+    str
+        title or upper case string
+    """
+    return s.replace('_', ' ').title() if len(s) > max_upper else s.upper()
+
+
+def to_snake(s: str) -> str:
+    """Convert messy camel case to lower snake case
+
+    Parameters
+    ----------
+    s : str
+        string to convert to special snake case
+    """
+    s = remove_bad_chars(s).strip()  # get rid of /<() etc
+    s = re.sub(r'[\]\[()]', '', s)  # remove brackets/parens
+    s = re.sub(r'[\n-]', '_', s)  # replace newline/dash with underscore
+    s = re.sub(r'[%]', 'pct', s)
+    s = re.sub(r"'", '', s)
+
+    # split on capital letters
+    expr = r'(?<!^)((?<![A-Z])|(?<=[A-Z])(?=[A-Z][a-z]))(?=[A-Z])'
+
+    return re \
+        .sub(expr, '_', s) \
+        .lower() \
+        .replace(' ', '_') \
+        .replace('__', '_')

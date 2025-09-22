@@ -1,7 +1,8 @@
+from collections.abc import Iterable
 from typing import TypeVar
 
 T = TypeVar('T')
-Listable = T | list[T]  # either single item or list of items
+Listable = T | Iterable[T]  # either single item or list of items
 Num = int | float
 
 DATE_FMT = '%Y-%m-%d'
