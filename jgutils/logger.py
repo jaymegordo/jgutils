@@ -121,9 +121,11 @@ class CustomLogger(logging.Logger):
 
         # this prevents duplicate outputs (eg for pytest and on aws lambda)
         # TODO this leaves duplicate output on lambda logs, would be nice to fix to improve readability there
-        from jgutils.config import IS_REMOTE
-        if not IS_REMOTE:
-            self.propagate = False  # need to allow propagation for sentry to captuer log.error
+        # from jgutils.config import IS_REMOTE
+        # need to allow propagation for sentry to captuer log.error
+        # and for smseventlog app to send logs to terminal UI
+        # if not IS_REMOTE:
+        #     self.propagate = False  
 
     @override
     def error(self, msg: str | None = None, *args, send_sentry: bool = True, **kw) -> None:
