@@ -2,6 +2,7 @@ from abc import ABCMeta
 from collections.abc import Callable
 from typing import Any
 from typing import TypeVar
+from typing import override
 
 from jgutils.pretty import PrettyString as PS
 
@@ -30,6 +31,7 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
         except BaseException:
             return text
 
+    @override
     def __str__(self) -> str:
         """Create string representation of self from dict or list of strings"""
         data = []
@@ -53,6 +55,7 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
             PS(self.__class__.__name__, color='blue'),
             ', '.join(data))
 
+    @override
     def __repr__(self) -> str:
         return str(self)
 
