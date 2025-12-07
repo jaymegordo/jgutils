@@ -1,3 +1,10 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatchling.build.targets.wheel]
+packages = ["jgutils"]
+
 [project]
 name = "jgutils"
 version = "0.1.0"
