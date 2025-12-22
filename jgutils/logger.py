@@ -5,8 +5,9 @@ import re
 import sys
 import traceback
 from logging.handlers import RotatingFileHandler
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import override
 
 from jgutils.config import IS_REMOTE
 
@@ -125,7 +126,7 @@ class CustomLogger(logging.Logger):
         # need to allow propagation for sentry to captuer log.error
         # and for smseventlog app to send logs to terminal UI
         # if not IS_REMOTE:
-        #     self.propagate = False  
+        #     self.propagate = False
 
     @override
     def error(self, msg: str | None = None, *args, send_sentry: bool = True, **kw) -> None:
