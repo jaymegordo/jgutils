@@ -14,7 +14,6 @@ import pandas as pd
 from jgutils import typing as tp
 
 if TYPE_CHECKING:
-    from jgutils.typing import Listable
     from jgutils.typing import T
 
 #  from pandas.to_datetime
@@ -67,6 +66,11 @@ def flatten_list_list(lst: list[list['T']]) -> list['T']:
 
 
 @overload
+def as_list(items: None) -> list[Any]:
+    ...
+
+
+@overload
 def as_list(items: dict[Any, Any]) -> list[tuple[Any, Any]]:
     ...
 
@@ -77,17 +81,22 @@ def as_list(items: str) -> list[str]:
 
 
 @overload
-def as_list(items: None) -> list[Any]:
+def as_list(items: list['T']) -> list['T']:
     ...
 
 
 @overload
-def as_list(items: 'Listable[T]') -> list['T']:
+def as_list(items: Iterable['T']) -> list['T']:
+    ...
+
+
+@overload
+def as_list(items: 'T') -> list['T']:
     ...
 
 
 def as_list(
-        items: 'Listable[T] | dict[Any, Any] | str | None'
+        items: 'T | Iterable[T] | dict[Any, Any] | str | None'
 ) -> list['T'] | list[tuple[Any, Any]] | list[str] | list[Any]:
     """Convert single item or iterable of items to list
     - if items is None, return empty list
