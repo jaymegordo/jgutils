@@ -134,7 +134,6 @@ def as_list(
         return [items]
 
 
-
 def last_day_of_period(date: dt, freq: str) -> dt:
     """Return the last day of the period that the given date falls in using pandas.
 
