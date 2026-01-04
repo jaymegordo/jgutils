@@ -91,7 +91,7 @@ def as_list(items: Iterable['T']) -> list['T']:
 
 
 @overload
-def as_list(items: 'T') -> list['T']:
+def as_list(items: 'T | Iterable[T]') -> list['T']:
     ...
 
 
@@ -132,6 +132,7 @@ def as_list(
         return list(items)
     else:
         return [items]
+
 
 
 def last_day_of_period(date: dt, freq: str) -> dt:
