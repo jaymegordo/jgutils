@@ -1,9 +1,11 @@
 from collections.abc import Iterable
+from datetime import datetime
 from typing import TypeVar
 
 T = TypeVar('T')
 Listable = T | Iterable[T]  # either single item or list of items
 Num = int | float
+DtNone = datetime | None
 
 DATE_FMT = '%Y-%m-%d'
 DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
