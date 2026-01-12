@@ -10,6 +10,7 @@ from typing import Any
 from typing import override
 
 from jgutils.config import IS_REMOTE
+from jgutils.config import SYS_FROZEN
 
 try:
     import colored_traceback
@@ -26,6 +27,7 @@ except ModuleNotFoundError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable  # noqa: F401
+    from typing import TextIO
 
     from jgutils.errors import CustomSentryIntegration
 
@@ -289,12 +291,42 @@ if not IS_REMOTE:
 else:
     StreamFormatter = logging.Formatter
 
+
+def _is_frozen_windows_gui() -> bool:
+    """Check if running as a frozen Windows GUI app (no console).
+
+    In this environment, sys.stdout and sys.stderr are None because
+    there's no console to write to. Any attempt to use StreamHandler
+    will fail.
+    """
+    return SYS_FROZEN and sys.platform == 'win32'
+
+
+def _is_stream_valid(stream: 'TextIO | None') -> bool:
+    """Check if a stream is valid for writing."""
+    if stream is None:
+        return False
+
+    # Check if it's a real writable stream (not just an object with write method that might fail)
+    try:
+        # Try to check if it's a closed file-like object
+        return not (hasattr(stream, 'closed') and stream.closed)
+    except Exception:
+        return False
+
+
 # Console/stream handler
 _fmt_stream = '%(levelname)-7s %(lineno)-4d %(name)-20s %(message)s'
 stream_formatter = StreamFormatter(_fmt_stream)
-# In frozen apps where sys.stdout is None, use NullHandler to avoid conflicts with terminal
-sh = logging.NullHandler() if sys.stdout is None else logging.StreamHandler(
-    stream=sys.stdout)
+
+# In frozen Windows GUI apps there's no console, so stdout/stderr are None.
+# Use NullHandler to avoid crashes - file handler and Qt terminal handler will still work.
+if _is_frozen_windows_gui():
+    sh = logging.NullHandler()
+elif _is_stream_valid(sys.stdout):
+    sh = logging.StreamHandler(stream=sys.stdout)
+else:
+    sh = logging.NullHandler()
 sh.setFormatter(stream_formatter)
 
 # set file logger if path set and not remote
