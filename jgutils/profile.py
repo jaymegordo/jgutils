@@ -19,7 +19,7 @@ import pandas as pd
 from IPython.core.magic import Magics
 from IPython.core.magic import cell_magic
 from IPython.core.magic import magics_class
-from seaborn import diverging_palette
+from jgutils.colors import diverging_palette
 
 from jgutils import config as cf
 from jgutils import re_utils as ru
