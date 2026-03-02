@@ -11,6 +11,7 @@ from typing import Any
 from typing import Literal
 from typing import Self
 from typing import overload
+from typing import override
 
 from joblib import Parallel
 from joblib import delayed
@@ -45,7 +46,8 @@ class ErrThread(Thread):
 
         super().__init__(target=new_target)
 
-    def join(self):
+    @override
+    def join(self) -> None:
         threading.Thread.join(self)
         if self.exc:
             raise self.exc
@@ -55,7 +57,7 @@ class ThreadManager():
 
     def __init__(
             self,
-            func: Callable[..., Any],
+            func: Callable[..., Any] | str,
             items: list[dict] | Iterable[Any],
             raise_errors: bool = True,
             log_errors: bool = False,
@@ -315,7 +317,8 @@ class ProgressParallel(Parallel):
 
         return cls(*args, **kw)
 
-    def __call__(self, *args, **kwargs) -> Generator:
+    @override
+    def __call__(self, *args, **kwargs) -> Generator[Any, Any, Any]:
         if self._log:
             log.info(
                 f'Starting tasks={self._total:,.0f} with n_jobs={self.n_jobs}')
@@ -328,13 +331,15 @@ class ProgressParallel(Parallel):
                 bar_format=self.bar_format) as self._pbar:
             return Parallel.__call__(self, *args, **kwargs)
 
-    def print_progress(self):
+    @override
+    def print_progress(self) -> None:
         if self._total is None:
             self._pbar.total = self.n_dispatched_tasks
 
         self._pbar.n = self.n_completed_tasks
         self._pbar.refresh()
 
-    def _print(self, *args):
+    @override
+    def _print(self, *args) -> None:
         """Just to suppress joblib.Parallel print output"""
         pass
