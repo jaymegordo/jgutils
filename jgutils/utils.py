@@ -261,4 +261,3 @@ def file_modified_dt(p: Path) -> dt:
         date file modified
     """
     return dt.fromtimestamp(p.stat().st_mtime, tz=UTC)
-
