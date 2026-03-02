@@ -21,6 +21,7 @@ dependencies = [
     "ruamel-yaml>=0.18.10",
     "tqdm>=4.67.1",
     "joblib>=1.5.1",
+    "matplotlib>=3.10.8",
 ]
 
 [dependency-groups]
@@ -45,7 +46,6 @@ terminaldf = [
 
 [tool.uv]
 default-groups = ["dev"]
-required-version = ">=0.7.2,<0.8"
 
 [tool.uv.sources]
 pygments = { git = "https://github.com/jaymegordo/pygments.git" }
@@ -164,7 +164,6 @@ ignore = [
     "ANN003",
     "RET503",
     "RET505",
-    "PD901",
     "PD003",
     "PD004",
     "PLR5501",

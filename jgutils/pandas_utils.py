@@ -8,6 +8,7 @@ from io import StringIO
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import overload
+from uuid import UUID
 
 import numpy as np
 import pandas as pd
@@ -637,3 +638,30 @@ def date_range_freq(freq: str) -> str:
         'M': 'ME',
         'W': 'W'
     }[freq]
+
+
+def truncate_text(df: pd.DataFrame, cols: list[str] | None = None, max_len: int = 80) -> pd.DataFrame:
+    """Truncate text in columns and add '...' if text was truncated
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame to process
+    cols : list[str] | None
+        Columns to truncate. If None, all object columns will be truncated
+    max_len : int
+        Maximum length of text before truncation
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with truncated text columns
+    """
+    if cols is None:
+        cols = df.select_dtypes(include=['object']).columns.tolist()
+
+    def _truncate(s: pd.Series) -> pd.Series:
+        return s.apply(lambda x: f'{str(x)[:max_len]}...' if isinstance(
+            x, str | list | dict | UUID) and len(str(x)) > max_len else x)
+
+    return df.assign(**{col: lambda df, col=col: _truncate(df[col]) for col in cols})
