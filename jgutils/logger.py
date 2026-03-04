@@ -64,7 +64,7 @@ class ColoredFormatter(Formatter):
         fmt = f'%(log_color)s{fmt}'
 
         super().__init__(fmt, *args, log_colors=log_colors, **kw)
-        self.colorizer = Colorizer(style='jayme')
+        self.colorizer = Colorizer(style='jayme')  # pyright: ignore[reportPossiblyUnboundVariable]
 
     def colorize_traceback(self, type, value, tb) -> str:  # noqa: ANN001
         """
@@ -74,8 +74,11 @@ class ColoredFormatter(Formatter):
 
         # import pygments.lexers
         tb_text = ''.join(traceback.format_exception(type, value, tb))
-        lexer = pygments.lexers.get_lexer_by_name('pytb', stripall=True)
-        return pygments.highlight(
+
+        lexer = pygments \
+            .lexers.get_lexer_by_name('pytb', stripall=True)
+
+        return pygments.highlight(  # pyright: ignore[reportPossiblyUnboundVariable]
             tb_text, lexer, self.colorizer.formatter)
         # self.stream.write(tb_colored)
 
@@ -145,9 +148,9 @@ class CustomLogger(logging.Logger):
         super().error(msg, *args, **kw)
 
     def _get_sentry_integration(self) -> 'CustomSentryIntegration | None':
-        import sentry_sdk
+        import sentry_sdk  # noqa: PLC0415
 
-        from jgutils.errors import SENTRY_INTEGRATION
+        from jgutils.errors import SENTRY_INTEGRATION  # noqa: PLC0415
         return sentry_sdk.Hub.current.get_integration(SENTRY_INTEGRATION)
 
     def _set_sentry(self, data_type: str, data: str | dict, value: Any = None) -> None:  # noqa: ANN401

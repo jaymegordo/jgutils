@@ -42,7 +42,7 @@ class PrettyDisplayItem(metaclass=ABCMeta):  # noqa: B024
 
     def display(self):
         try:
-            from IPython.display import display
+            from IPython.display import display  # noqa: PLC0415
             display(self)
         except ImportError:
             print(self)  # noqa: T201
@@ -85,7 +85,7 @@ class PrettyDict(PrettyDisplayItem):
         # don't highlight keys, just use structural formatting only
         is_remote = False
         with contextlib.suppress(ModuleNotFoundError):
-            from jambot.config import IS_REMOTE
+            from jambot.config import IS_REMOTE  # noqa: PLC0415
             is_remote = IS_REMOTE
 
         if not color or is_remote:
@@ -113,7 +113,7 @@ class PrettyDict(PrettyDisplayItem):
         key : str | None, optional
             key to use for each item, by default int index
         """
-        from jgutils.utils import as_list
+        from jgutils.utils import as_list  # noqa: PLC0415
 
         attrs = as_list(attrs)
 
@@ -297,7 +297,7 @@ class PrettyString(PrettyDisplayItem):
             string with ansi escape code colors
         """
         with contextlib.suppress(ModuleNotFoundError):
-            from jambot.config import IS_REMOTE
+            from jambot.config import IS_REMOTE  # noqa: PLC0415
             if IS_REMOTE:
                 return str(s)
 

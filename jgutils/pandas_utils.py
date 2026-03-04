@@ -322,7 +322,8 @@ def lower_cols(
     if is_list:
         return list(m_cols.values())
     else:
-        return df.pipe(lambda df: df.rename(columns=m_cols))
+        return df \
+            .pipe(lambda df: df.rename(columns=m_cols))  # pyright: ignore[reportAttributeAccessIssue]
 
 
 def lower_vals(df: pd.DataFrame, cols: 'Listable[str]') -> pd.DataFrame:
@@ -408,8 +409,8 @@ def terminal_df(
     pad : bool, optional
         print space before/after df, by default False
     """
-    from pandas.io.formats.style import Styler
-    from tabulate import tabulate
+    from pandas.io.formats.style import Styler  # noqa: PLC0415
+    from tabulate import tabulate  # noqa: PLC0415
 
     if isinstance(df, Styler):
         # create string format dataframe from stylers html output
@@ -523,7 +524,7 @@ def get_unique_index(df: pd.DataFrame, cols: tuple[str, ...]) -> list[tuple[str,
 def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
     """Flatten multiindex to single index"""
     df = df.copy()
-    cols = ['_'.join(col).strip() for col in df.columns.to_flat_index()]
+    cols = ['_'.join(col).strip() for col in df.columns.to_flat_index()]  # pyright: ignore[reportAttributeAccessIssue]
     df.columns = cols
     return df
 

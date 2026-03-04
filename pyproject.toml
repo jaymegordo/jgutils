@@ -126,7 +126,7 @@ select = [
     "PTH",
     "PD",
     "PGH",
-    "TCH",
+    "TC",
     "ANN",
     "RET",
     "SIM",
@@ -134,6 +134,7 @@ select = [
     "C4",
     "TRY",
     "DJ",
+    "PLC0415"  # Check for imports outside top-level
 ]
 ignore = [
     "E712",
@@ -158,14 +159,14 @@ ignore = [
     "D400",
     "D401",
     "D415",
-    "ANN101",
-    "ANN102",
     "ANN002",
     "ANN003",
     "RET503",
     "RET505",
     "PD003",
     "PD004",
+    "PD011",
+    "PD013",
     "PLR5501",
     "PLR2004",
     "PGH003",
@@ -175,13 +176,14 @@ ignore = [
     "SIM118",
     "Q003",
     "C408",
+    "C420",
     "TRY003",
     "TRY201",
     "TRY300",
     "TRY400",
     "DJ001",
     "UP039",
-    "TCH003",  # standard library
+    "TC003",  # standard library
 ]
 
 [tool.ruff.lint.flake8-type-checking]
