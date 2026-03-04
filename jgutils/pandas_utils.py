@@ -44,7 +44,7 @@ def filter_cols(df: pd.DataFrame, expr: str = '.') -> list:
     return [c for c in df.columns if re.search(expr, c)]
 
 
-def select_cols(df: pd.DataFrame, expr: str = '.', include: list = None) -> pd.DataFrame:
+def select_cols(df: pd.DataFrame, expr: str = '.', include: list | None = None) -> pd.DataFrame:
     """Filter df cols based on regex
 
     Parameters
@@ -323,7 +323,7 @@ def lower_cols(
         return list(m_cols.values())
     else:
         return df \
-            .pipe(lambda df: df.rename(columns=m_cols))  # pyright: ignore[reportAttributeAccessIssue]
+            .pipe(lambda df: df.rename(columns=m_cols))  # ty:ignore[unresolved-attribute]
 
 
 def lower_vals(df: pd.DataFrame, cols: 'Listable[str]') -> pd.DataFrame:
@@ -472,7 +472,7 @@ def minmax_scale(s: pd.Series, feature_range: tuple[float, float] = (0, 1)) -> n
     -------
     np.ndarray
     """
-    return np.interp(s, (s.min(), s.max()), feature_range)
+    return np.interp(s, (s.min(), s.max()), feature_range)  # ty:ignore[invalid-return-type]
 
 
 def split(df: pd.DataFrame, target: list[str] | str = 'target') -> tuple[pd.DataFrame, pd.Series]:
@@ -480,7 +480,7 @@ def split(df: pd.DataFrame, target: list[str] | str = 'target') -> tuple[pd.Data
     if isinstance(target, list) and len(target) == 1:
         target = target[0]
 
-    return df.pipe(safe_drop, cols=target), df[target]
+    return df.pipe(safe_drop, cols=target), df[target]  # ty:ignore[invalid-return-type]
 
 
 def xs(df: pd.DataFrame, idx_key: tuple[Any]) -> pd.DataFrame:
@@ -524,7 +524,7 @@ def get_unique_index(df: pd.DataFrame, cols: tuple[str, ...]) -> list[tuple[str,
 def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
     """Flatten multiindex to single index"""
     df = df.copy()
-    cols = ['_'.join(col).strip() for col in df.columns.to_flat_index()]  # pyright: ignore[reportAttributeAccessIssue]
+    cols = ['_'.join(col).strip() for col in df.columns.to_flat_index()]  # ty:ignore[unresolved-attribute]
     df.columns = cols
     return df
 
@@ -629,7 +629,7 @@ def expand_period_index(
 
     return df \
         .merge(pd.DataFrame(index=idx), how='right', left_index=True, right_index=True) \
-        .rename_axis(idx_name)
+        .rename_axis(idx_name)  # ty:ignore[invalid-argument-type]
 
 
 def date_range_freq(freq: str) -> str:

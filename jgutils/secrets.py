@@ -163,6 +163,8 @@ class SecretsManager():
 
         elif method == CryptMethod.DECRYPT:
             return re.sub(f'^{self.prefix_encrypted}', '', key)
+        else:
+            raise ValueError(f'Invalid method: {method}')
 
     def _encrypt_decrypt(self, method: CryptMethod, data: str) -> str:
         """Encrypt/decrypt string
@@ -443,4 +445,4 @@ class SecretsManager():
         - Useful for reading csv/excel data from bytes so far
         """
         result = str(bytes, 'UTF-8')
-        return StringIO(result)
+        return StringIO(result)  # ty:ignore[invalid-return-type]

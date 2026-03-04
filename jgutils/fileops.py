@@ -63,7 +63,7 @@ def load_pickle(p: Path) -> Any:  # noqa: ANN401
         return pickle.load(file)
 
 
-def unzip(p: Path, p_dst: Path = None, delete: bool = False) -> Path:
+def unzip(p: Path, p_dst: Path | None = None, delete: bool = False) -> Path:
     """Simple wrapper for shultil unpack_archive with default unzip dir
 
     Parameters

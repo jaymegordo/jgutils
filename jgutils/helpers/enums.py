@@ -6,6 +6,7 @@ from enum import IntEnum as _IntEnum
 from enum import StrEnum as _StrEnum
 from enum import property as enum_property
 from typing import Any
+from typing import override
 
 
 class ChoicesType(EnumType):
@@ -14,28 +15,29 @@ class ChoicesType(EnumType):
         """Mostly copied from django ChoicesType"""
         labels = []
 
-        for key in classdict._member_names:
+        for key in classdict._member_names:  # ty:ignore[unresolved-attribute]
             value = classdict[key]
             label = key.replace('_', ' ').title()
             labels.append(label)
             dict.__setitem__(classdict, key, value)
 
-        cls = super().__new__(cls, classname, bases, classdict, **kw)
+        cls = super().__new__(cls, classname, bases, classdict, **kw)  # ty:ignore[invalid-argument-type]
 
         for member, label in zip(cls.__members__.values(), labels, strict=False):
             member._label_ = label
 
-        return enum.unique(cls)
+        return enum.unique(cls)  # ty:ignore[invalid-argument-type]
 
     @property
     def choices(cls) -> list[tuple[Any, str]]:
         """Return tuple of vale, label to create choices list for django models"""
-        return [(member.value, member.label) for member in cls]
+        return [(member.value, member.label) for member in cls]  # ty:ignore[unresolved-attribute]
 
 
 class _BaseEnum(enum.Enum):
     """Base enum class to add utility methods"""
 
+    @override
     def __repr__(self) -> str:
         return f'{self.__class__.__qualname__}.{self._name_}'
 
@@ -86,7 +88,7 @@ class BaseEnum(_BaseEnum, metaclass=ChoicesType):
 
     @enum_property
     def label(self) -> str:
-        return self._label_
+        return self._label_  # ty:ignore[unresolved-attribute]
 
 
 class IntEnum(BaseEnum, _IntEnum):
@@ -98,15 +100,18 @@ class IntEnum(BaseEnum, _IntEnum):
 class StrEnum(BaseEnum, _StrEnum):
     """Enum to allow equality check with any case string"""
 
+    @override
     def __str__(self) -> str:
         return self.value
 
+    @override
     def __hash__(self) -> int:
         """NOTE important to override both __hash__ and __eq__ in SAME class,
         or else class will be marked as "unhashable"
         """
         return hash(self.value)
 
+    @override
     def __eq__(self, other: Any) -> bool:  # noqa: ANN401
         """Check equality with any case string"""
         return str(self.value).lower() == str(other).lower()

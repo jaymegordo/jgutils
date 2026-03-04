@@ -200,7 +200,7 @@ def husl_to_rgb(h: float, s: float, l: float) -> tuple[float, float, float]:  # 
         RGB values (0-1, 0-1, 0-1)
     """
     rgb = _lch_to_rgb(*_husl_to_lch([h, s, l]))
-    return tuple(np.clip(rgb, 0, 1))  # type: ignore[return-value]
+    return tuple(np.clip(rgb, 0, 1))
 
 
 def rgb_to_husl(r: float, g: float, b: float) -> tuple[float, float, float]:
@@ -234,7 +234,7 @@ def _blend_palette(
         return cmap
 
     rgb_array = cmap(np.linspace(0, 1, n_colors))[:, :3]
-    return [tuple(row) for row in rgb_array]  # ty:ignore[invalid-return-type]
+    return [tuple(row) for row in rgb_array]
 
 
 def _light_palette(

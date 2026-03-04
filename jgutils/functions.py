@@ -121,7 +121,7 @@ def nested_dict_update(m1: dict, m2: dict) -> dict:
         # Compute set of all keys in both dictionaries.
         keys = set(m1.keys()) | set(m2.keys())
 
-        return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}
+        return {k: nested_dict_update(m1.get(k), m2.get(k)) for k in keys}  # ty:ignore[invalid-argument-type]
 
 
 def check_path(p: Path | str) -> Path:

@@ -48,7 +48,7 @@ _palette = dict(
 palette = {k: f'\033[{color_code}m' for k, color_code in _palette.items()}
 
 
-class ColoredFormatter(Formatter):
+class ColoredFormatter(Formatter):  # ty:ignore[unsupported-base]
     """Custom logging Formatter to print colored tracebacks and log level messages
     """
 

@@ -152,7 +152,7 @@ def parse_date(s: str) -> dt | None:
     try:
         return pd.to_datetime(s).to_pydatetime()
     except (ValueError, OverflowError):
-        return pd.NaT
+        return pd.NaT  # ty:ignore[invalid-return-type]
 
 
 def parse_string(s: str) -> str | None:

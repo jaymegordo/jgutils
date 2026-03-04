@@ -101,7 +101,7 @@ class ThreadManager():
         """
 
         self.func = func
-        self.items = items
+        self.items = list(items)
         self.threads = []  # type: list[Thread]
         self.queue = Queue()
         self._log = _log
@@ -117,10 +117,10 @@ class ThreadManager():
 
         if self.backend == 'threading':
             # 10 jobs, 5 items = 5 jobs
-            self.n_jobs = min(n_jobs, max(len(items), 1))
+            self.n_jobs = min(n_jobs, max(len(items), 1))  # ty:ignore[invalid-argument-type]
         else:
             # process based, so use all available
-            self.n_jobs = n_jobs = min(multiprocessing.cpu_count(), len(items))
+            self.n_jobs = n_jobs = min(multiprocessing.cpu_count(), len(items))  # ty:ignore[invalid-argument-type]
 
         self.dict_args = dict_args  # define wether to unpack dict args or not
         self.func_kw = func_kw or {}
@@ -139,7 +139,7 @@ class ThreadManager():
 
         for m in self.items:
             thread = ErrThread(target=lambda q, kw, m=m: q.put(
-                self.func(**m)), args=[self.queue, m])
+                self.func(**m)), args=[self.queue, m])  # ty:ignore[call-non-callable]
             self.threads.append(thread)
             thread.start()
 
@@ -165,7 +165,7 @@ class ThreadManager():
             List of results from each thread.
         """
         start = time.time()
-        results = [self.func(**m) for m in self.items]
+        results = [self.func(**m) for m in self.items]  # ty:ignore[call-non-callable]
         end = time.time()
 
         if _log:
@@ -266,7 +266,7 @@ class ThreadManager():
         if not return_none:
             res = [r for r in res if not r is None]
 
-        return res
+        return res  # ty:ignore[invalid-return-type]
 
 
 class ProgressParallel(Parallel):
@@ -288,7 +288,7 @@ class ProgressParallel(Parallel):
         self._log = _log
 
         if not items is None:
-            self._total = len(items)
+            self._total = len(items)  # ty:ignore[invalid-argument-type]
 
         # limit bar width in terminal
         self.bar_format = '{l_bar}{bar:20}{r_bar}{bar:-20b}'

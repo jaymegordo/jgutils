@@ -216,7 +216,7 @@ def size_readable(nbytes: int) -> str:
     suffixes = ('B', 'KB', 'MB', 'GB', 'TB', 'PB')
     i = 0
     while nbytes >= 1024 and i < len(suffixes) - 1:
-        nbytes /= 1024.
+        nbytes /= 1024.  # ty:ignore[invalid-assignment]
         i += 1
 
     f = f'{nbytes:.2f}'.rstrip('0').rstrip('.')

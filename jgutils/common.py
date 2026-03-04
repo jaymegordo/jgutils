@@ -31,6 +31,10 @@ class DictRepr(metaclass=ABCMeta):  # noqa: B024
         except BaseException:
             return text
 
+    def to_dict(self) -> dict[str, Any]:
+        """Convert object to dict"""
+        raise NotImplementedError('Must specify a "to_dict" method.')
+
     @override
     def __str__(self) -> str:
         """Create string representation of self from dict or list of strings"""

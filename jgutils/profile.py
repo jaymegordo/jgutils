@@ -43,12 +43,12 @@ def bg(
         axis: int = 0) -> 'Styler':
     """Show style with highlights per column"""
     if subset is None:
-        subset = style.data.columns
+        subset = style.data.columns  # ty:ignore[invalid-assignment]
 
-    cmap = _cmap.reversed() if higher_better else _cmap
+    cmap = _cmap.reversed() if higher_better else _cmap  # ty:ignore[unresolved-attribute]
 
     return style \
-        .background_gradient(cmap=cmap, subset=subset, axis=axis)
+        .background_gradient(cmap=cmap, subset=subset, axis=axis)  # ty:ignore[invalid-return-type, invalid-argument-type]
 
 
 def highlight_max_col(
@@ -64,7 +64,11 @@ def highlight_max_col(
     subset = pd.IndexSlice[idx_max, col_hl]
 
     return style \
-        .apply(lambda x: pd.Series([format_cell(color, t_color)], index=x.index), subset=subset, axis=1)
+        .apply(
+            lambda x: pd.Series(
+                [format_cell(color, t_color)],
+                index=x.index),
+            subset=subset, axis=1)  # ty:ignore[no-matching-overload]
 
 
 @magics_class
@@ -86,12 +90,12 @@ class ProfileMagic(Magics):
             sort=opts.get('s', ['cum_time'])[0]
         )
 
-        code = self.shell.transform_cell(cell)
-        ns = self.shell.user_ns
+        code = self.shell.transform_cell(cell)  # ty:ignore[unresolved-attribute]
+        ns = self.shell.user_ns  # ty:ignore[unresolved-attribute]
         profiler = profile.Profile().runctx(code, ns, ns)
         stats = pstats.Stats(profiler)
 
-        return show_df_stats(stats=stats, **m_opts)
+        return show_df_stats(stats=stats, **m_opts)  # ty:ignore[invalid-argument-type]
 
 
 def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -> 'Styler':
@@ -176,7 +180,7 @@ def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -
         .pipe(highlight_max_col, col_max='tot_time', col_hl='func', t_color='black') \
         .pipe(highlight_max_col, col_max='n_calls', col_hl='func', color='#ffbf7a', t_color='black') \
         .format(m_fmt) \
-        .format(escape='html', subset=['module', 'func'])
+        .format(escape='html', subset=['module', 'func'])  # ty:ignore[invalid-argument-type]
 
 
 def load_ipython_extension(ipython) -> None:  # noqa: ANN001
