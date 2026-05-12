@@ -156,9 +156,9 @@ def last_day_of_period(date: dt, freq: str) -> dt:
     # Convert datetime to pandas Period
     period = pd.Period(date, freq=freq)
 
-    # Return the end time of the period as a datetime with time set to 00:00:00
-    return period.end_time.to_pydatetime() \
-        .replace(hour=0, minute=0, second=0, microsecond=0)
+    # normalize() zeros sub-day precision on the Timestamp before to_pydatetime()
+    # to avoid the "Discarding nonzero nanoseconds" warning from pandas.
+    return period.end_time.normalize().to_pydatetime()
 
 
 def format_d_rng(d_rng: tuple[dt | date, dt | date]) -> str:
