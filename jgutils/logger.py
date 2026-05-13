@@ -344,8 +344,6 @@ if not log_path is None and not IS_REMOTE:
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(fmt_file)
 
-# NOTE could do logging.basicConfig(handlers=[sh, fh]) to catch everything
-# logging.basicConfig(handlers=[sh, fh], level=logging.DEBUG)
 logging.setLoggerClass(CustomLogger)
 
 
