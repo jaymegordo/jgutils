@@ -17,6 +17,8 @@ from jgutils import utils as utl
 from jgutils.logger import get_log
 
 if TYPE_CHECKING:
+    from datetime import date
+
     from jgutils.styler_type import Styler
     from jgutils.typing import Listable
 
@@ -281,12 +283,12 @@ def to_title(s: str, max_upper: int = -1) -> str:
 
 
 @overload
-def lower_cols(df: pd.DataFrame) -> pd.DataFrame:
+def lower_cols(df: pd.DataFrame, title: bool = False) -> pd.DataFrame:
     ...
 
 
 @overload
-def lower_cols(df: list[str]) -> list[str]:
+def lower_cols(df: list[str], title: bool = False) -> list[str]:
     ...
 
 
@@ -574,7 +576,7 @@ def select_by_multiindex(
 def expand_period_index(
         df: pd.DataFrame,
         freq: str = 'M',
-        d_rng: tuple[dt, dt] | None = None,
+        d_rng: 'tuple[dt | date, dt | date] | None' = None,
         group_col: str | None = None) -> pd.DataFrame:
     """Expand/fill PeriodIndex to include missing periods
 
