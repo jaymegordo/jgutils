@@ -82,7 +82,7 @@ class ColoredFormatter(Formatter):  # ty:ignore[unsupported-base]
             tb_text, lexer, self.colorizer.formatter)
         # self.stream.write(tb_colored)
 
-    def formatException(self, ei) -> str:  # noqa: ANN001, N802
+    def formatException(self, ei) -> str:  # noqa: ANN001
         sio = io.StringIO()
 
         try:
@@ -99,7 +99,7 @@ class ColoredFormatter(Formatter):  # ty:ignore[unsupported-base]
 
         return s
 
-    def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
+    def formatMessage(self, record: logging.LogRecord) -> str:
         message = super().formatMessage(record)
         return highlight_filepath(message)
 
