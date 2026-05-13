@@ -172,15 +172,13 @@ def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -
         ('tot_time', 'cum_time', 'per_call'),
         '{:.03f}') | dict(n_calls='{:,.0f}')
 
+    # bg/highlight_max_col take jgutils Styler subtype which adds typed attrs; pandas pipe wants pandas Styler
     return df.head(head).style \
-        .pipe(
-            bg,
-            subset=['tot_time', 'n_calls'],
-            higher_better=False) \
+        .pipe(bg, subset=['tot_time', 'n_calls'], higher_better=False) \
         .pipe(highlight_max_col, col_max='tot_time', col_hl='func', t_color='black') \
         .pipe(highlight_max_col, col_max='n_calls', col_hl='func', color='#ffbf7a', t_color='black') \
         .format(m_fmt) \
-        .format(escape='html', subset=['module', 'func'])  # ty:ignore[invalid-argument-type]
+        .format(escape='html', subset=['module', 'func'])  # ty:ignore[invalid-argument-type, invalid-return-type]
 
 
 def load_ipython_extension(ipython) -> None:  # noqa: ANN001

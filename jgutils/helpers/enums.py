@@ -21,10 +21,18 @@ class ChoicesType(EnumType):
             labels.append(label)
             dict.__setitem__(classdict, key, value)
 
-        cls = super().__new__(cls, classname, bases, classdict, **kw)  # ty:ignore[invalid-argument-type]
+        # classdict is _EnumDict at runtime; declared as plain dict in signature
+        cls = super().__new__(
+            cls,
+            classname,
+            bases,
+            classdict,  # ty:ignore[invalid-argument-type]
+            **kw,
+        )
 
+        # _label_ is added dynamically to each member by ChoicesType metaclass
         for member, label in zip(cls.__members__.values(), labels, strict=False):
-            member._label_ = label
+            member._label_ = label  # ty:ignore[unresolved-attribute]
 
         return enum.unique(cls)  # ty:ignore[invalid-argument-type]
 

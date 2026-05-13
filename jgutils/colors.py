@@ -9,6 +9,8 @@ color space. The implementation is based on the husl library.
 # ruff: noqa: N806, N803
 import math
 import operator
+from typing import Literal
+from typing import overload
 
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
@@ -224,6 +226,29 @@ def rgb_to_husl(r: float, g: float, b: float) -> tuple[float, float, float]:
 # Palette Functions (seaborn-compatible)
 # =============================================================================
 
+@overload
+def _blend_palette(
+    colors: list[tuple[float, float, float]],
+    n_colors: int = ...,
+    as_cmap: Literal[False] = ...) -> list[tuple[float, float, float]]: ...
+
+
+@overload
+def _blend_palette(
+    colors: list[tuple[float, float, float]],
+    n_colors: int = ...,
+    *,
+    as_cmap: Literal[True]) -> LinearSegmentedColormap: ...
+
+
+@overload
+def _blend_palette(
+    colors: list[tuple[float, float, float]],
+    n_colors: int = ...,
+    *,
+    as_cmap: bool) -> LinearSegmentedColormap | list[tuple[float, float, float]]: ...
+
+
 def _blend_palette(
         colors: list[tuple[float, float, float]],
         n_colors: int = 6,
@@ -251,7 +276,7 @@ def _light_palette(
     gray = husl_to_rgb(hue, gray_s, gray_l)
 
     colors = [rgb, gray] if reverse else [gray, rgb]
-    return _blend_palette(colors, n_colors)  # type: ignore[return-value]
+    return _blend_palette(colors, n_colors)
 
 
 def _dark_palette(
@@ -268,7 +293,7 @@ def _dark_palette(
     gray = husl_to_rgb(hue, gray_s, gray_l)
 
     colors = [rgb, gray] if reverse else [gray, rgb]
-    return _blend_palette(colors, n_colors)  # type: ignore[return-value]
+    return _blend_palette(colors, n_colors)
 
 
 def diverging_palette(

@@ -85,7 +85,8 @@ class PrettyDict(PrettyDisplayItem):
         # don't highlight keys, just use structural formatting only
         is_remote = False
         with contextlib.suppress(ModuleNotFoundError):
-            from jambot.config import IS_REMOTE  # noqa: PLC0415
+            # jambot is an optional sister project; import suppressed when not installed
+            from jambot.config import IS_REMOTE  # noqa: PLC0415  # ty:ignore[unresolved-import]
             is_remote = IS_REMOTE
 
         if not color or is_remote:
@@ -297,7 +298,8 @@ class PrettyString(PrettyDisplayItem):
             string with ansi escape code colors
         """
         with contextlib.suppress(ModuleNotFoundError):
-            from jambot.config import IS_REMOTE  # noqa: PLC0415
+            # jambot is an optional sister project; import suppressed when not installed
+            from jambot.config import IS_REMOTE  # noqa: PLC0415  # ty:ignore[unresolved-import]
             if IS_REMOTE:
                 return str(s)
 

@@ -550,14 +550,14 @@ def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtypes: 'Listable[str]' =
 
 def select_by_multiindex(
         df: pd.DataFrame,
-        keys: 'Listable[tuple[str, str]]',
+        keys: Iterable[tuple[str, str]],
         names: list[str]) -> pd.DataFrame:
     """Select df by multiindex keys
 
     Parameters
     ----------
     df : pd.DataFrame
-    keys : Listable[tuple[str, str]]
+    keys : Iterable[tuple[str, str]]
         list of (level, key) tuples
     names : list[str]
         list of level names

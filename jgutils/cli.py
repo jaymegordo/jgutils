@@ -99,7 +99,8 @@ class CustomArgumentParser(ArgumentParser, Loggable):
         # Set name_or_flags if not defined
         name_or_flags = data.pop('name_or_flags', f'--{name}')  # type: str
 
-        self.add_argument(name_or_flags, *args, **data)  # type: ignore[arg-type]
+        # CUSTOM dict values are heterogeneous by design (type/default/choices/help differ per arg)
+        self.add_argument(name_or_flags, *args, **data)  # ty:ignore[invalid-argument-type]
 
     def add_multi(self, names: list[str]) -> None:
         """Convenience method to add multiple custom arguments."""

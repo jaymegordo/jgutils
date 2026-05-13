@@ -1,9 +1,14 @@
 import os
+from typing import TYPE_CHECKING
 from typing import Any
 
 import sentry_sdk
 from sentry_sdk.integrations import Integration
 from sentry_sdk.scope import add_global_event_processor
+
+if TYPE_CHECKING:
+    from sentry_sdk.types import Event
+    from sentry_sdk.types import Hint
 
 SENTRY_INTEGRATION = os.getenv('SENTRY_INTEGRATION')
 
@@ -73,7 +78,7 @@ class CustomSentryIntegration(Integration):
         """Called one time to set event_processor as global event processor"""
 
         @add_global_event_processor
-        def event_processor(event: dict, hint: dict | None = None) -> dict:
+        def event_processor(event: 'Event', hint: 'Hint') -> 'Event | None':
             integration = sentry_sdk.Hub.current.get_integration(
                 SENTRY_INTEGRATION)
 

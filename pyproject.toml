@@ -13,9 +13,9 @@ authors = [
     { name = "Jayme Gordon", email = "jaymegordo@gmail.com" }
 ]
 license = "MIT"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.13,<3.15"
 dependencies = [
-    "numpy>=2.2.3",
+    "numpy>=2.2.0",
     "pandas>=2.2.3",
     "cryptography>=38.0.1",
     "ruamel-yaml>=0.18.10",
@@ -26,9 +26,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest>=6.2.4",
-    "autopep8>=2.3.1",
-    "ruff>=0.1.14",
+    "pytest>=9.0.2",
+    "autopep8>=2.3.2",
+    "ruff>=0.15.12",
+    "ty>=0.0.35",
     "pre-commit>=4.2.0",
 ]
 
@@ -104,11 +105,27 @@ reportUnusedImport = "none"
 reportInconsistentConstructor = "none"
 reportShadowedImports = "none"
 
+[tool.autopep8]
+max_line_length = 120
+aggressive = 1
+
+[tool.ty.src]
+include = ["jgutils"]
+
+[tool.ty.rules]
+invalid-argument-type = "warn"
+invalid-method-override = "ignore"
+
+[tool.ty.terminal]
+output-format = "concise"
+
 [tool.ruff]
 cache-dir = "~/.cache/ruff"
 line-length = 120
 exclude = ["notebooks/*"]
 target-version = "py313"
+unsafe-fixes = true
+output-format = "concise"
 
 [tool.ruff.format]
 quote-style = "single"
@@ -203,3 +220,4 @@ convention = "numpy"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+known-first-party = ["jgutils"]
