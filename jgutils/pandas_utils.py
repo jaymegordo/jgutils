@@ -93,7 +93,7 @@ def clean_cols(df: pd.DataFrame, cols: list) -> pd.DataFrame:
 
 def safe_drop(
         df: pd.DataFrame,
-        cols: 'Listable[str]',
+        cols: Listable[str],
         do: bool = True) -> pd.DataFrame:
     """Drop columns from dataframe if they exist
 
@@ -328,7 +328,7 @@ def lower_cols(
             .pipe(lambda df: df.rename(columns=m_cols))  # ty:ignore[unresolved-attribute]
 
 
-def lower_vals(df: pd.DataFrame, cols: 'Listable[str]') -> pd.DataFrame:
+def lower_vals(df: pd.DataFrame, cols: Listable[str]) -> pd.DataFrame:
     """Convert values in cols to snake_case using to_snake
 
     Parameters
@@ -393,7 +393,7 @@ def reorder_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
 
 
 def terminal_df(
-        df: 'pd.DataFrame | Styler',
+        df: pd.DataFrame | Styler,
         date_only: bool = True,
         show_na: bool = False,
         pad: bool = False,
@@ -531,7 +531,7 @@ def flatten_multicols(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtypes: 'Listable[str]' = 'object') -> pd.DataFrame:
+def fillna_dtype(df: pd.DataFrame, fill_val: str = '', dtypes: Listable[str] = 'object') -> pd.DataFrame:
     """Fill na with fill_val for given dtype
 
     Parameters
@@ -576,7 +576,7 @@ def select_by_multiindex(
 def expand_period_index(
         df: pd.DataFrame,
         freq: str = 'M',
-        d_rng: 'tuple[dt | date, dt | date] | None' = None,
+        d_rng: tuple[dt | date, dt | date] | None = None,
         group_col: str | None = None) -> pd.DataFrame:
     """Expand/fill PeriodIndex to include missing periods
 

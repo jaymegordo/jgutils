@@ -113,7 +113,7 @@ class CustomArgumentParser(ArgumentParser, Loggable):
         self.add_argument(*args, **kw)
 
     @staticmethod
-    def validate_date(s: str | None) -> 'DtNone':
+    def validate_date(s: str | None) -> DtNone:
         """Parse and return date as UTC datetime object.
 
         Parameters

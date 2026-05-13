@@ -147,7 +147,7 @@ class CustomLogger(logging.Logger):
 
         super().error(msg, *args, **kw)
 
-    def _get_sentry_integration(self) -> 'CustomSentryIntegration | None':
+    def _get_sentry_integration(self) -> CustomSentryIntegration | None:
         import sentry_sdk  # noqa: PLC0415
 
         from jgutils.errors import SENTRY_INTEGRATION  # noqa: PLC0415
@@ -305,7 +305,7 @@ def _is_frozen_windows_gui() -> bool:
     return SYS_FROZEN and sys.platform == 'win32'
 
 
-def _is_stream_valid(stream: 'TextIO | None') -> bool:
+def _is_stream_valid(stream: TextIO | None) -> bool:
     """Check if a stream is valid for writing."""
     if stream is None:
         return False

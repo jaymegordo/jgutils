@@ -50,7 +50,7 @@ def check_path(p: Path | str, force_file: bool = False) -> Path:
     return p
 
 
-def flatten_list_list(lst: list[list['T']]) -> list['T']:
+def flatten_list_list(lst: list[list[T]]) -> list[T]:
     """Flatten single level nested list of lists
 
     Parameters
@@ -81,23 +81,23 @@ def as_list(items: str) -> list[str]:
 
 
 @overload
-def as_list(items: list['T']) -> list['T']:
+def as_list(items: list[T]) -> list[T]:
     ...
 
 
 @overload
-def as_list(items: Iterable['T']) -> list['T']:
+def as_list(items: Iterable[T]) -> list[T]:
     ...
 
 
 @overload
-def as_list(items: 'T | Iterable[T]') -> list['T']:
+def as_list(items: T | Iterable[T]) -> list[T]:
     ...
 
 
 def as_list(
-        items: 'T | Iterable[T] | dict[Any, Any] | str | None'
-) -> list['T'] | list[tuple[Any, Any]] | list[str] | list[Any]:
+        items: T | Iterable[T] | dict[Any, Any] | str | None
+) -> list[T] | list[tuple[Any, Any]] | list[str] | list[Any]:
     """Convert single item or iterable of items to list
     - if items is None, return empty list
 

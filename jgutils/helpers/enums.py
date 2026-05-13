@@ -78,7 +78,7 @@ class _BaseEnum(enum.Enum):
     def get(
             cls,
             key: str,
-            default: 'str | None' = None) -> 'str | None':
+            default: str | None = None) -> str | None:
         """Get enum value"""
         return cls.as_dict().get(key, default)
 
@@ -86,7 +86,7 @@ class _BaseEnum(enum.Enum):
     def get_inverse(
             cls,
             key: str,
-            default: 'str | None' = None) -> 'str | None':
+            default: str | None = None) -> str | None:
         """Get inverse enum value"""
         return cls.inverse_dict().get(key, default)
 

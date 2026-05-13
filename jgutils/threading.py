@@ -61,7 +61,7 @@ class ThreadManager():
             items: list[dict] | Iterable[Any],
             raise_errors: bool = True,
             log_errors: bool = False,
-            allowed_errors: 'Listable[type[Exception]] | None' = None,
+            allowed_errors: Listable[type[Exception]] | None = None,
             warn_expected: bool = True,
             dict_args: bool = True,
             func_kw: dict | None = None,
@@ -131,10 +131,10 @@ class ThreadManager():
         ...
 
     @overload
-    def start(self, wait: Literal[False], _log: bool = False) -> 'ThreadManager':
+    def start(self, wait: Literal[False], _log: bool = False) -> ThreadManager:
         ...
 
-    def start(self, wait: bool = True, _log: bool = False) -> 'ThreadManager | list[Any]':
+    def start(self, wait: bool = True, _log: bool = False) -> ThreadManager | list[Any]:
         """Start all threads."""
 
         for m in self.items:

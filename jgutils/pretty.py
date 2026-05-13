@@ -97,10 +97,10 @@ class PrettyDict(PrettyDisplayItem):
     @classmethod
     def from_attrs(
             cls,
-            obj: 'Listable[Any]',
-            attrs: 'Listable[str]',
+            obj: Listable[Any],
+            attrs: Listable[str],
             key: str | None = None,
-            **kw) -> 'PrettyDict':
+            **kw) -> PrettyDict:
         """Create PrettyDict from attributes of an object
         - if obj is iterable, create PD from list of each, else single dict
 
@@ -241,7 +241,7 @@ class PrettyString(PrettyDisplayItem):
             s: str,
             color: str = 'green',
             prehighlight: bool = False,
-            expr: str | 're.Pattern[str]' | None = None):
+            expr: str | re.Pattern[str] | None = None):
         """
         Parameters
         ----------

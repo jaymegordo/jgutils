@@ -78,7 +78,7 @@ class CustomSentryIntegration(Integration):
         """Called one time to set event_processor as global event processor"""
 
         @add_global_event_processor
-        def event_processor(event: 'Event', hint: 'Hint') -> 'Event | None':
+        def event_processor(event: Event, hint: Hint) -> Event | None:
             integration = sentry_sdk.Hub.current.get_integration(
                 SENTRY_INTEGRATION)
 

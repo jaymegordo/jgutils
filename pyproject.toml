@@ -154,7 +154,6 @@ select = [
     "PLC0415"  # Check for imports outside top-level
 ]
 ignore = [
-    "UP037",  # temp
     "N802",  # PyQt6 overrides require camelCase by API contract
     "E712",
     "E713",

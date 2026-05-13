@@ -37,10 +37,10 @@ def format_cell(bg: str, t: str = 'inherit') -> str:
 
 
 def bg(
-        style: 'Styler',
+        style: Styler,
         subset: list[str] | None = None,
         higher_better: bool = True,
-        axis: int = 0) -> 'Styler':
+        axis: int = 0) -> Styler:
     """Show style with highlights per column"""
     if subset is None:
         subset = style.data.columns  # ty:ignore[invalid-assignment]
@@ -52,11 +52,11 @@ def bg(
 
 
 def highlight_max_col(
-        style: 'Styler',
+        style: Styler,
         col_max: str,
         col_hl: str,
         color: str = '#F8696B',
-        t_color: str = 'inherit') -> 'Styler':
+        t_color: str = 'inherit') -> Styler:
     """Highlight max value in column"""
 
     df = style.data
@@ -75,7 +75,7 @@ def highlight_max_col(
 class ProfileMagic(Magics):
 
     @cell_magic
-    def prof(self, params: str = '', cell: str | None = None) -> 'Styler':
+    def prof(self, params: str = '', cell: str | None = None) -> Styler:
 
         # opts = eg {'h': ['5']}
         opts, arg_str = self.parse_options(
@@ -98,7 +98,7 @@ class ProfileMagic(Magics):
         return show_df_stats(stats=stats, **m_opts)  # ty:ignore[invalid-argument-type]
 
 
-def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -> 'Styler':
+def show_df_stats(stats: pstats.Stats, head: int = 20, sort: str = 'cum_time') -> Styler:
     """Show styled dataframe of pstats data
 
     Parameters
