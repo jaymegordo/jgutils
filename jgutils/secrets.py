@@ -14,6 +14,9 @@ from cryptography.fernet import InvalidToken
 from ruamel.yaml import YAML
 
 from jgutils.helpers.enums import StrEnum
+from jgutils.logger import get_log
+
+log = get_log(__name__)
 
 
 class CryptMethod(StrEnum):
@@ -226,76 +229,104 @@ class SecretsManager():
 
         return True
 
-    def _encrypt_decrypt_dict(self, method: CryptMethod, data: dict) -> None:
-        """Encrypt/decrypt dictionary recursively
-        - NOTE need to mutate in-place, otherwise loses yaml anchor/aliases
+    def _safe_remove_keys(
+            self,
+            data: dict,
+            keys_to_remove: list[str],
+            preserve_anchors: bool = False) -> None:
+        """Remove keys from a mapping using a strategy safe for ruamel CommentedMaps.
+
+        Direct `del` on a CommentedMap that is referenced by a YAML merge anchor
+        (`<<: *anchor`) triggers ruamel bug #552 (`update_key_value` KeyError: 1).
+        The copy-based path bypasses that machinery entirely.
 
         Parameters
         ----------
-        data : dict
-            Dictionary to encrypt/decrypt
-        method : CryptMethod
-            Encrypt or decrypt
+        preserve_anchors
+            True when the result will be re-serialized via ruamel (encrypt-write path)
+            and anchors must survive. False for read paths that just consume the data.
         """
-        prefixes = {
-            CryptMethod.DECRYPT: self.prefix_encrypted,
-            CryptMethod.ENCRYPT: self.prefix_to_encrypt}
+        if not keys_to_remove:
+            return
 
-        for k, v in list(data.items()):
-            if isinstance(v, dict):
-                # call recursively
-                self._encrypt_decrypt_dict(method, v)
+        if preserve_anchors:
+            self._delete_keys_individually(data, keys_to_remove)
+        else:
+            try:
+                cleaned = {k: v for k, v in data.items() if k not in keys_to_remove}
+                data.clear()
+                data.update(cleaned)
+            except (AttributeError, TypeError):
+                self._delete_keys_individually(data, keys_to_remove)
 
-            elif k.startswith(prefixes[method]):
-                # create new key with 'e_' prefix and encrypt, or remove prefix and decrypt
-                new_key = self._new_key(method, k)
-
-                # Prevent overwriting existing unencrypted keys of same name
-                if not new_key in data.keys():
-                    data[new_key] = self._encrypt_decrypt(method, v)
-
-                # can't delete old key when decrypting, linked by yaml anchor
-                if method == CryptMethod.ENCRYPT:
-                    # delete old key
-                    del data[k]
-
-    def _remove_encrypted_keys(self, data: dict) -> None:
-        """Recursively remove keys that start with 'e_'
-
-        Parameters
-        ----------
-        data : dict
-            Dictionary to remove keys from
-        """
-        for k, v in list(data.items()):
-            if isinstance(v, dict):
-                # call recursively
-                self._remove_encrypted_keys(v)
-
-            elif k.startswith(self.prefix_encrypted):
-                # delete key
+    def _delete_keys_individually(self, data: dict, keys: list[str]) -> None:
+        """Per-key `del` with tolerance for ruamel CommentedMap merge-anchor bugs."""
+        for k in keys:
+            try:
                 del data[k]
+            except (KeyError, AttributeError) as e:
+                log.error(f'Skipping deletion of key \'{k}\' due to ruamel.yaml CommentedMap issue: {e}')
+
+    def _encrypt_dict_copy_based(self, data: dict, prefix: str) -> None:
+        """Single-level encrypt pass: add `e_*` keys, then remove the originals."""
+        transformed_items = {}
+        keys_to_remove = []
+
+        for k, v in data.items():
+            if k.startswith(prefix):
+                new_key = self._new_key(CryptMethod.ENCRYPT, k)
+                if new_key not in data:
+                    transformed_items[new_key] = self._encrypt_decrypt(CryptMethod.ENCRYPT, v)
+                    keys_to_remove.append(k)
+
+        data.update(transformed_items)
+        self._safe_remove_keys(data, keys_to_remove, preserve_anchors=True)
+
+    def _encrypt_dict_recursive(self, data: dict) -> None:
+        """Two-pass encrypt: recurse into nested dicts first, then transform this level.
+
+        Splitting recursion from key transformation avoids mutating the mapping
+        while iterating it.
+        """
+        for _k, v in list(data.items()):
+            if isinstance(v, dict):
+                self._encrypt_dict_recursive(v)
+
+        self._encrypt_dict_copy_based(data, self.prefix_to_encrypt)
+
+    def _decrypt_and_cleanup(self, data: dict) -> None:
+        """Single-pass decrypt + `e_*` key removal.
+
+        Collects decrypted entries and encrypted keys in one traversal, then applies
+        them after the loop so we never mutate `data` while iterating it. The removal
+        step routes through `_safe_remove_keys` so anchored maps don't trigger the
+        ruamel `update_key_value` bug.
+        """
+        if not isinstance(data, dict):
+            return
+
+        keys_to_add = {}
+        keys_to_remove = []
+
+        for k, v in list(data.items()):
+            if isinstance(v, dict):
+                self._decrypt_and_cleanup(v)
+            elif k.startswith(self.prefix_encrypted):
+                new_key = self._new_key(CryptMethod.DECRYPT, k)
+                if new_key not in data:
+                    keys_to_add[new_key] = self._encrypt_decrypt(CryptMethod.DECRYPT, v)
+                keys_to_remove.append(k)
+
+        data.update(keys_to_add)
+        self._safe_remove_keys(data, keys_to_remove)
 
     def encrypt_yaml(self, data: dict) -> None:
-        """Encrypt yaml data and return a new dictionary
-
-        Parameters
-        ----------
-        data : dict
-            Dictionary to encrypt
-        """
-        self._encrypt_decrypt_dict(CryptMethod.ENCRYPT, data)
+        """Encrypt `_*` keys in-place, preserving ruamel anchors for round-trip write."""
+        self._encrypt_dict_recursive(data)
 
     def decrypt_yaml(self, data: dict) -> None:
-        """Decrypt yaml data and return a new dictionary
-
-        Parameters
-        ----------
-        data : dict
-            Dictionary to decrypt
-        """
-        self._encrypt_decrypt_dict(CryptMethod.DECRYPT, data)
-        self._remove_encrypted_keys(data)
+        """Decrypt `e_*` keys in-place and strip the encrypted originals."""
+        self._decrypt_and_cleanup(data)
 
     def _get_path(self, name: str) -> Path:
         """Get unique path for filename in full/partial folder
