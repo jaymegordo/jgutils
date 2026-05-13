@@ -43,7 +43,7 @@ _LAB_K = 903.3
 
 
 def _dot_product(a: list[float], b: list[float]) -> float:
-    return sum(map(operator.mul, a, b))
+    return sum(map(operator.mul, a, b, strict=False))
 
 
 def _f(t: float) -> float:

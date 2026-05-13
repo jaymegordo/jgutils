@@ -3,7 +3,6 @@ import re
 from abc import ABCMeta
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Union
 from typing import override
 
 from pydantic import BaseModel
@@ -242,7 +241,7 @@ class PrettyString(PrettyDisplayItem):
             s: str,
             color: str = 'green',
             prehighlight: bool = False,
-            expr: Union[str, 're.Pattern[str]'] | None = None):
+            expr: str | 're.Pattern[str]' | None = None):
         """
         Parameters
         ----------
