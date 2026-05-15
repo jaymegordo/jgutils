@@ -32,6 +32,18 @@ class CustomSentryIntegration(Integration):
     >>> log = get_log(__name__)
     >>> log.set_sentry_data('user', dict(name='username', id=123)))
     >>> log.set_sentry_tag('test_tag', 'whatever')
+
+    Legacy — prefer the native ``sentry_sdk`` API in new code:
+
+    - ``sentry_sdk.set_tag(key, value)`` replaces ``log.set_sentry_tag(...)``
+    - ``sentry_sdk.set_extra(key, value)`` replaces ``log.set_sentry_data(...)``
+    - ``sentry_sdk.set_context(name, dict)`` for a structured event panel
+
+    Those write to the active scope and require no env var / integration
+    registration. This class predates that API; using it requires both
+    setting ``SENTRY_INTEGRATION`` before import AND passing the class to
+    ``sentry_sdk.init(integrations=[...])``. The native functions do the
+    same thing with less ceremony.
     """
     identifier = SENTRY_INTEGRATION
     MAX_STRING_LEN = 1000
