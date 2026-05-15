@@ -1,6 +1,7 @@
 import os
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import override
 
 import sentry_sdk
 from sentry_sdk.integrations import Integration
@@ -74,6 +75,7 @@ class CustomSentryIntegration(Integration):
         tags.update(self._tags)
 
     @staticmethod
+    @override
     def setup_once():
         """Called one time to set event_processor as global event processor"""
 
